@@ -1,0 +1,521 @@
+/* global */
+#secsignid-secUi .secUi-custcolor{color: #e21221;}
+#secsignid-secUi .secUi-custhighlight:hover{color: #e21221;}
+#secsignid-secUi .secUi-custbutton{color: #e21221; border-color: #e21221;}
+#secsignid-secUi .secUi-custbutton:hover{color: #fff; background-color: #e21221;}
+#secsignid-secUi .secUi-custbgcolor{background-color: #e21221;}
+#secsignid-secUi .secUi-custappcolor:hover{color: #fff; background-color: #e21221;}
+#secsignid-secUi .secUi-custborder{border-color: #e21221;}
+
+
+
+#secsignid-secUi *:focus {
+    box-shadow: 0px 0px 0px 2px #f6a742 !important;
+    outline:none;
+}
+#secsignid-secUi *::-moz-focus-inner {
+    border:0;
+}
+
+#secsignid-secUi *::selection {
+  background: #f6a742;
+  color: #ffffff;
+}
+#secsignid-secUi *::-moz-selection {
+  background: #f6a742;
+  color: #ffffff;
+}
+#secsignid-secUi *::-webkit-selection {
+  background: #f6a742;
+  color: #ffffff;
+}
+
+
+
+
+/* main */
+
+
+
+#secsignid-secUi #secUi-main__container{
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 1.5em;
+      color: #4a4a4a;
+      padding: 10px 40px 10px 10px;
+}
+
+#secsignid-secUi #secUi-main__container.secUi-mobile{
+    padding: 10px;
+}
+
+#secsignid-secUi .secUi-main__wrapper{
+    width: 80%;
+    max-width: 600px;
+    position: relative;
+    margin: 30px auto;
+    padding: 0;
+    border-radius: 3px;
+    box-shadow: 0px 5px 20px #0000004d;
+    min-height: 420px;
+    background-color: #fff;
+    transition: all 1s;
+}
+
+#secsignid-secUi.secMobile .secUi-main__wrapper{
+    width: 100%;
+    max-width: 350px;
+}
+
+#secsignid-secUi h3{
+    text-align: center;
+}
+
+#secsignid-secUi .secUi-main__wrapper{
+    padding-bottom: 20px;
+}
+
+#secsignid-secUi .secUi-main__badge {
+    position: absolute;
+    right: -35px;
+    width: 35px;
+    height: 200px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    top: 150px;
+    box-shadow: 5px 0px 10px #0000004d;
+    display: block;
+    background-image: url("../img/secsign-company-logo.png");
+    background-size: auto 90%;
+    background-position: center right;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+#secsignid-secUi #secUi-main__container.secUi-mobile .secUi-main__badge {
+    position: relative;
+    right: 0;
+    width: 100%;
+    top: 0;
+    height: 33px;
+    background-image: url(../img/secsign-company-logo-grey.png);
+    background-color: transparent !important;
+    box-shadow: none;
+    background-position-x: center;
+    background-position-y: center;
+    opacity: 0.5;
+}
+
+#secsignid-secUi .secUi-main__helpcontainer {
+    text-align: right;
+    margin: -20px 0 10px 0;
+}
+
+#secsignid-secUi .secUi-main__helplink, .secUi-main__supportlink {
+    text-decoration: none;
+    margin: 0;
+    display: inline-block;
+    padding: 0 5px 0 5px;
+    font-size: 0.85em;
+}
+
+#secsignid-secUi .secUi-main__helplink:hover, .secUi-main__supportlink:hover {
+    text-decoration: underline;
+}
+
+#secsignid-secUi .secUi-main__supportlink {
+    border-right: 1px solid #fff;
+}
+
+#secsignid-secUi .secUi-pageQr__link, .secUi-pageQrRestore__link{
+    
+    width: 100%;
+}
+
+#secsignid-secUi .secUi-main__button {
+    width: 100%;
+    border: 1px solid black;
+    background-color: transparent;
+    border-radius: 30px;
+    padding: 8px;
+    margin: 20px auto 0 auto;
+    cursor: pointer;
+    font-size: 1em;
+    display: block;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+#secsignid-secUi .secUi-main__logoicon{
+    display: block;
+    margin: 20px auto;
+    height: 50px;
+    width: 50px;
+    background-image: url("../img/secsign-logo-icon.png");
+    background-size: contain;
+    cursor: pointer;
+}
+
+#secsignid-secUi .secUi-main__text{
+    text-align: center;
+}
+
+#secsignid-secUi .secUi-main__textsmall{
+    font-size: 0.9em;
+    margin-bottom: 30px;
+}
+
+#secsignid-secUi .spinner{
+
+}
+
+/* header */
+#secsignid-secUi .secUi-header{
+    background-color: #f6f6f6;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 10px 5%;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+#secsignid-secUi .secUi-header__logo{
+    max-width: 50%;
+    display: block;
+    margin-right: 5%;
+    max-height: 125px;
+}
+#secsignid-secUi .secUi-header__container{
+    min-width: 50%;
+    display: block;
+}
+
+#secsignid-secUi .secUi-header__heading{
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+#secsignid-secUi .secUi-header__companyname{}
+
+#secsignid-secUi .secUi-header__subheading{}
+
+#secsignid-secUi .secUi-header__username{
+    font-weight: bold;
+}
+
+/* progress */
+#secsignid-secUi .secUi-progress{
+    height: 2px;
+    width: 100%;
+    background-color: #b9b9b9;
+    position: relative;
+}
+#secsignid-secUi .secUi-progress__bar{
+    position: absolute;
+    width: 10%;
+    height: 2px;
+    transition: width 1s;
+}
+
+/* page */
+#secsignid-secUi .secUi-page{
+    
+    min-height: 220px;
+    padding: 40px 20px 20px 20px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    transition: height 0.4s;
+}
+
+#secsignid-secUi .secUi-pageApps__appcontainer,
+#secsignid-secUi .secUi-pageApps__appcontainerdesktop{
+    margin: 30px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#secsignid-secUi .secUi-pageApps__appbtn{
+    width: 48%;
+    line-height: 34px;
+    background-color: #505050;
+    border-radius: 3px;
+    color: #fff;
+    padding: 3px;
+    margin: 2% 0;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+#secsignid-secUi #secUi-main__container.secUi-mobile .secUi-pageApps__appbtn {
+    width: 100%;
+}
+
+#secsignid-secUi .secUi-pageApps__appbtnicon{
+    width:32px;
+    height:32px;
+    fill: white;
+    padding: 5px 6px;
+    float: left;
+}
+
+#secsignid-secUi .secUi-pageQr__code,
+#secsignid-secUi .secUi-pageQrRestore__code,
+#secsignid-secUi .secUi-pageAccesspass__accesspass {
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+    max-width: 200px;
+}
+
+#secsignid-secUi #secUi-pageAccesspass__noaccesspassicon,
+#secsignid-secUi #secUi-pageAccesspass__accesspassicon{
+    
+}
+
+#secsignid-secUi .secUi-pageAccesspass__apcontainer {
+    width: 100px;
+    padding: 20px;
+    background-color: #f6f6f6;
+    margin: 30px auto;
+    border-radius: 100px;
+    border: 2px solid #b9b9b9;
+}
+
+
+#secsignid-secUi .secUi-main__textinput{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 0;
+    background-color: #f6f6f6;
+    border-radius: 30px;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: center;
+}
+
+#secsignid-secUi .secUi-pageError__errorCodeContainer{
+    color: red;
+    font-weight: bold;
+}
+
+#secsignid-secUi #secUi-pageError__errorCode{
+
+}
+
+#secsignid-secUi #secUi-pageError__errorMsg{
+    padding: 20px;
+    background-color: #ffeaea;
+    border-radius: 3px;
+    margin: 30px auto 30px;
+    text-align: center;
+}
+
+#secsignid-secUi #secUi-pageAbout{
+    text-align: center;
+}
+
+#secsignid-secUi #secUi-pageAccesspass{
+    text-align: center;
+}
+
+#secsignid-secUi #secUi-pageLoad{
+    
+    min-height: 220px;
+    padding: 40px 20px 40px 20px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    transition: height 0.4s;
+    top: 0;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #fff;
+    text-align: center;
+    font-size: 0.8em;
+}
+
+#secsignid-secUi .secUi-main__barload {
+  display: block;
+  position: relative;
+  margin: 30px auto 10px auto;
+  width: 64px;
+  height: 60px;
+}
+#secsignid-secUi .secUi-main__barload div {
+  display: inline-block;
+  position: absolute;
+  left: 6px;
+  width: 13px;
+  background: red;
+  animation: secUi-main__barload 1.5s infinite;
+  border-radius: 3px;
+}
+#secsignid-secUi .secUi-main__barload div:nth-child(1) {
+  left: 6px;
+  animation-delay: -0.24s;
+}
+#secsignid-secUi .secUi-main__barload div:nth-child(2) {
+  left: 26px;
+  animation-delay: -0.12s;
+}
+#secsignid-secUi .secUi-main__barload div:nth-child(3) {
+  left: 45px;
+  animation-delay: 0;
+}
+@keyframes secUi-main__barload {
+  0% {
+    top: 0px;
+    height: 60px;
+  }
+  50% {
+    top: 10px;
+    height: 40px;
+  }
+  100% {
+      top: 0px;
+      height: 60px;
+ }
+}
+
+#secsignid-secUi #secUi-main__pageContainer {
+    display: block;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+
+
+
+#secsignid-secUi  #secUi-main__container{
+    transition: all 0.5s;
+    transition-timing-function: ease-out;
+    opacity: 1;
+    margin-top: 0px;
+}
+
+#secsignid-secUi  #secUi-main__container.secUi-beforeAnnim{
+    margin-top: 10px;
+}
+
+#secsignid-secUi .secUi-main__rememberContainer {
+    margin: 0;
+    text-align: center;
+}
+
+#secsignid-secUi .secUi-main__rememberIdLabel,
+#secsignid-secUi .secUi-main__rememberUserLabel {
+    padding-left: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+
+#secsignid-secUi .secUi-pageQrRestoreDesktop__list,
+#secsignid-secUi .secUi-pageQrDesktop__list{
+    margin: 20px 20px 20px 40px;
+    text-align: left;
+}
+
+#secsignid-secUi .secUi-main__cloud{
+    
+}
+
+#secsignid-secUi .secUi-pageQrRestoreDesktop__backbtn,
+#secsignid-secUi .secUi-pageQrDesktop__backbtn{
+    color: #008ddd;
+    cursor: pointer;
+    background-color: transparent;
+    margin: 0;
+    text-decoration: none;
+    font-size: 0.85em;
+    position: absolute;
+    top: 24px;
+}
+
+#secsignid-secUi .secUi-pageQrRestoreDesktop__backbtn:hover,
+#secsignid-secUi .secUi-pageQrDesktop__backbtn:hover{
+    text-decoration: underline;
+}
+
+#secsignid-secUi .secUi-pageQrRestore__link,
+#secsignid-secUi .secUi-pageQr__link{
+    margin: 30px 0;
+}
+
+#secsignid-secUi input[type="submit"]:disabled {
+    border-color: #cbcbcb !important;
+    color: #cbcbcb !important;
+}
+#secsignid-secUi input[type="submit"]:disabled:hover {
+    background-color: #cbcbcb !important;
+    color: #fff !important;
+}
+
+/* uifixes */
+
+#secsignid-secUi #secUi-pageClaim .secUi-main__text {
+    margin-bottom: 75px;
+}
+
+
+
+
+
+
+.secUi-main__chooseid{
+    background-color: #f3f3f3;
+    padding: 10px 50px;
+    margin: 20px 0;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    background-image: url("../img/usericon.png");
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 10px;
+    text-align: center;
+    display: block;
+    width:100%;
+}
+.secUi-main__deleteid {
+    width: 30px;
+    display: block;
+    position: absolute;
+    right: 10px;
+    border-radius: 3px;
+    text-align: center;
+    color: #008fda;
+}
+.secUi-main__deleteid:hover {
+    background-color: #008fda;
+    color: #fff;
+}
+
+.secUi-main__addnewbutton,
+.secUi-main__showsavedbutton {
+    float: right;
+    margin: 0 0px;
+    color: #000;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: block;
+}
+
+.secUi-main__showsavedbutton{
+    
+    margin-top: 20px;
+}
+
+#secUi-pageQrDesktopManualDesc{
+    display:none;
+}
