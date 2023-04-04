@@ -542,7 +542,7 @@ public class SecSignRESTConnector {
             throw new SecSignIDRESTException("UnsupportedEncodingException: " + e.getMessage());
         }
 
-        String endpointUrl = "/qrcode/?content=" + encodedParameters;
+        String endpointUrl = "/rest/v2/AuthSession?" + encodedParameters;
         System.out.println("endpointUrl is "+endpointUrl );
         SecSignIDRESTResponse response = getGetResponse(endpointUrl, null);
 

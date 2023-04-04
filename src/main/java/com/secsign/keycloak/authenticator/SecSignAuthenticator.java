@@ -23,8 +23,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-
-import org.jboss.resteasy.logging.Logger;
+import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.RequiredActionFactory;
@@ -81,6 +80,7 @@ public class SecSignAuthenticator implements Authenticator {
 			Map<String, List<String>> attributesForSecSignUser=secsignUser.getAttributes();
 			if(attributesForSecSignUser.containsKey("pin_account_password"))
 			{
+				
 				String pinAccountPassword=attributesForSecSignUser.get("pin_account_password").get(0);
 				String pinAccountUser=attributesForSecSignUser.get("pin_account_user").get(0);
 				SecSignUtils.setPinAccount(pinAccountUser, pinAccountPassword);

@@ -4,7 +4,7 @@ import com.secsign.java.rest.SecSignRESTConnector;
 
 public class SecSignUtils {
 	
-	public static final String DEFAULT_SERVER = "http://183.91.3.60:8080/sca-test";
+	public static final String DEFAULT_SERVER = "https://httpapi.secsign.com";
 	private static final String KEYCLOAK_PIN_ACCOUNT = "KEYCLOAK_ADDON";
 	private static final String KEYCLOAK_PIN_ACCOUNT_PASSWORD = "?22OhZeFFq(k6AX.fde00";
 	private static String serverURL=null;

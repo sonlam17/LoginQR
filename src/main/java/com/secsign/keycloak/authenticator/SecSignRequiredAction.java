@@ -25,8 +25,7 @@ import java.util.stream.Stream;
 
 import javax.ws.rs.core.Response;
 
-
-import org.jboss.resteasy.logging.Logger;
+import org.jboss.logging.Logger;
 import org.keycloak.authentication.RequiredActionContext;
 import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
@@ -226,7 +225,7 @@ public class SecSignRequiredAction implements RequiredActionProvider {
 				        
 				        //create auth session
 				        try {
-				        	SecSignRESTConnector  connector= SecSignUtils.getRESTConnector();
+				        	SecSignRESTConnector connector= SecSignUtils.getRESTConnector();
 				        	SecSignIDRESTCreateAuthSessionResponse result= connector.getAuthSession(secSignID, context.getRealm().getDisplayName()+"@Keycloak",context.getUriInfo().getBaseUri().toString(), true);
 				        	if(result.getFrozen())
 				        	{
