@@ -199,93 +199,24 @@ public class SecSignAuthenticator implements Authenticator {
      */
     @Override
     public void action(AuthenticationFlowContext context) {
-        boolean authed=false;
+        boolean authed=true;
     	logger.debug("action is called");
-    	
+
     	String errorMsg="";
     	//get authSessionID from Form
     	String authSessionID=context.getHttpRequest().getFormParameters().getFirst("secsign_authSessionID");
     	switch(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))
     	{
+			authed=true;
     		case "checkAuth":
     		{
 	    			try {
-	    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector(); 
-	    	    		SecSignIDRESTCheckAuthSessionStateResponse answer=connector.checkAuth(authSessionID);
-	    	    		switch(answer.getAuthSessionState()){
-	    				case AUTHENTICATED:
-	    					//auth done
-	    					authed=true;
-	    					break;
-	    				case CANCELED:
-	    					errorMsg="Authentication Session canceled";
-	    					authed=false;
-	    					break;
-	    				case INVALID:
-	    					errorMsg="Authentication Session invalid";
-	    					authed=false;
-	    					break;
-	    				case NO_STATE:
-	    					errorMsg="Authentication Session has no state";
-	    					authed=false;
-	    					break;
-	    				case SUSPENDED:
-	    					errorMsg="Authentication Session suspended by the server";
-	    					authed=false;
-	    					break;
-	    				case DENIED:
-	    					errorMsg="Authentication Session denied by the user";
-	    					authed=false;
-	    					break;
-	    				case EXPIRED:
-	    					errorMsg="Authentication Session expired";
-	    					authed=false;
-	    					break;
-	    				case PENDING:
-	    				case FETCHED:
-	    					//auth is in progress
-	    						String accessPassIcon="";
-	    				        String secsignid="";
-	    				        authSessionID="";
-	    			        
-	    			        	accessPassIcon=context.getAuthenticationSession().getAuthNote("secsign_authsessionicondata");
-	    			        	secsignid=context.getAuthenticationSession().getAuthNote("secsign_secsignid");
-	    			        	authSessionID=context.getAuthenticationSession().getAuthNote("secsign_authsessionid");
-	    			        	context.form().setAttribute("accessPassIconData", accessPassIcon);
-	    				        context.form().setAttribute("secsignid", secsignid);
-	    				        context.form().setAttribute("authSessionID", authSessionID);
-	    				        Response challenge = context.form()
-	    				                .createForm("secsign-accesspass.ftl");
-	    				        
-	    				        
-	    				        context.challenge(challenge);
-	    				        return;
-	    				default:
-	    					authed=false;
-	    					break;
-	    	    			
-	    	    		}
-	    			} catch (SecSignIDRESTException e1) {
-	    				context.form().setAttribute("errorMsg", e1.getMessage());
-	    	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-	    				Response challenge = context.form()
-	    		                .createForm("secsign-error.ftl");
-	    		        context.challenge(challenge);
-	    		        return;
-	    			} catch (NullPointerException e1) {
-	    				context.form().setAttribute("errorMsg", e1.getMessage());
-	    	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-	    				Response challenge = context.form()
-	    		                .createForm("secsign-error.ftl");
-	    		        context.challenge(challenge);
-	    		        return;
-	    			}
-	    			
-	    	    	//delete session information, else would be shown on next login again
+	    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector();
+////
 	    	    	context.getAuthenticationSession().removeAuthNote("secsign_authsessionicondata");
 	    	    	context.getAuthenticationSession().removeAuthNote("secsign_secsignid");
 	    	    	context.getAuthenticationSession().removeAuthNote("secsign_authsessionid");
-	    	    	
+
 	    	        if(!authed)
 	    	        {
 	    	        	context.form().setAttribute("errorMsg", errorMsg);
@@ -294,16 +225,17 @@ public class SecSignAuthenticator implements Authenticator {
 	    		                .createForm("secsign-error.ftl");
 	    		        context.challenge(challenge);
 	    		        return;
-	    	        }else {   
+	    	        }else {
 	    	        	//authed, so proceed login
 	    		        //setCookie(context);
 	    		        context.success();
 	    	        }
     			break;
     		}
+			}
     		case "cancelAuth":
-    			try {	
-    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector(); 
+    			try {
+    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector();
 					connector.cancelAuthSession(authSessionID);
 					context.resetFlow();
     			} catch (SecSignIDRESTException e1) {
@@ -314,7 +246,7 @@ public class SecSignAuthenticator implements Authenticator {
     		        context.challenge(challenge);
     		        return;
     			}
-    				
+
     			break;
     		default:
     			break;
