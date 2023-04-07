@@ -41,53 +41,7 @@ import org.keycloak.models.utils.FormMessage;
 public class SecSignAuthenticator implements Authenticator {
 
 	private static final Logger logger = Logger.getLogger(SecSignAuthenticator.class);
-
-    
-    private void initConnector(AuthenticationFlowContext context) throws NullPointerException, Exception
-    {
-    	//get serverURL and save to Utils for later access
-		AuthenticatorConfigModel authenticatorConfigModel = context.getAuthenticatorConfig();
-
-		//check for config with custom serverURL
-		if (authenticatorConfigModel != null && authenticatorConfigModel.getConfig().get("SecSign_ServerURL")!=null &&
-				!authenticatorConfigModel.getConfig().get("SecSign_ServerURL").equals(""))
-    	{
-			//not default server, get all data from config
-			QrUtilities.saveServerURL(authenticatorConfigModel.getConfig().get("SecSign_ServerURL"));
-			String pinAccountUser=authenticatorConfigModel.getConfig().get("SecSign_PIN_ACCOUNT");
-			String pinAccountPassword=authenticatorConfigModel.getConfig().get("SecSign_PIN_PASSWORD");
-			QrUtilities.setPinAccount(pinAccountUser, pinAccountPassword);
-		}else {
-			//defaultServer , get PinAccount user or create one, if none exists
-			QrUtilities.saveServerURL(QrUtilities.DEFAULT_SERVER);
-			UserModel secsignUser=null;
-	    	if(context.getSession().userLocalStorage().getUserByUsername(context.getRealm(), "SecSign_PinAccount")!=null)
-	    	{
-	    		//get pinAccount user
-	    		secsignUser=context.getSession().userLocalStorage().getUserByUsername(context.getRealm(), "SecSign_PinAccount");
-	    	}else {
-	    		//create pinAccount user
-	    		secsignUser=context.getSession().userLocalStorage().addUser(context.getRealm(), "SecSign_PinAccount");
-	    	}
-
-	    	//get Attributes from the user to get pinAccount data
-			Map<String, List<String>> attributesForSecSignUser=secsignUser.getAttributes();
-			if(attributesForSecSignUser.containsKey("pin_account_password"))
-			{
-
-				String pinAccountPassword=attributesForSecSignUser.get("pin_account_password").get(0);
-				String pinAccountUser=attributesForSecSignUser.get("pin_account_user").get(0);
-				QrUtilities.setPinAccount(pinAccountUser, pinAccountPassword);
-			}
-			//				SecSignIDRESTPluginRegistrationResponse response;
-			//				response = SecSignUtils.getRESTConnector().registerPlugin(context.getUriInfo().getBaseUri().toString(),"Keycloak Add-On at "+context.getUriInfo().getBaseUri().getHost(),"Keycloak Add-On",PluginType.CUSTOM);
-			//				secsignUser.setSingleAttribute("pin_account_password", response.getPassword());
-			//	    		secsignUser.setSingleAttribute("pin_account_user", response.getAccountName());
-			//	    		SecSignUtils.setPinAccount(response.getAccountName(), response.getPassword());
-			//
-
-		}
-    }
+	
     
     /**
      * called when the auth process is started

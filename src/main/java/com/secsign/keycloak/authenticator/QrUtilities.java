@@ -74,20 +74,17 @@ public class QrUtilities {
 		final String methodName = "pollQrLoginStatus";
 		SecurityVerifyLoggingUtilities.entry(logger, methodName, context, qrLoginId, qrLoginDsi);
 
-		String tenantHostname = SecurityVerifyUtilities.getTenantHostname(context);
-		String accessToken = SecurityVerifyUtilities.getAccessToken(context);
 		CloseableHttpClient httpClient = null;
 		QrLoginResponse qrResponse = null;
 		try {
 			httpClient = HttpClients.createDefault();
 			URI uri = new URIBuilder()
-					.setScheme("https")
-					.setHost(tenantHostname)
+					.setScheme("http")
+					.setHost(DEFAULT_SERVER)
 					.setPath("/v2.0/factors/qr/authenticate/" + qrLoginId)
 					.setParameter("dsi", qrLoginDsi)
 					.build();
 			HttpGet getRequest = new HttpGet(uri);
-			getRequest.addHeader("Authorization", "Bearer " + accessToken);
 			getRequest.addHeader("Accept", "application/json");
 			CloseableHttpResponse response = httpClient.execute(getRequest);
 			int statusCode = response.getStatusLine().getStatusCode();
