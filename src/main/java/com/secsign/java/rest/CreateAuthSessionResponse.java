@@ -3,16 +3,16 @@ package com.secsign.java.rest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SecSignIDRESTCreateAuthSessionResponse {
+public class CreateAuthSessionResponse {
     /**
      * Logger for this class.
      */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecSignIDRESTCreateAuthSessionResponse.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CreateAuthSessionResponse.class);
 
     /**
      * Response when the ID is frozen.
      */
-    public static final SecSignIDRESTCreateAuthSessionResponse FROZEN = new SecSignIDRESTCreateAuthSessionResponse(0, null, null, true);
+    public static final CreateAuthSessionResponse FROZEN = new CreateAuthSessionResponse(0, null, null, true);
 
     /**
      * The auth session ID.
@@ -39,24 +39,24 @@ public class SecSignIDRESTCreateAuthSessionResponse {
      * @param json the json of this response
      * @return the response
      * @throws JSONException thrown when a JSON error occurred
-     * @throws SecSignIDRESTException thrown when a JSON key was not found
+     * @throws Exception thrown when a JSON key was not found
      */
-    public static SecSignIDRESTCreateAuthSessionResponse fromJson(String json) throws JSONException, SecSignIDRESTException {
+    public static CreateAuthSessionResponse fromJson(String json) throws JSONException, Exception {
         JSONObject rootObject = new JSONObject(json);
-        long authSessionId = rootObject.optLong("authsessionid", -1);
-        if (authSessionId == -1) {
-            logger.debug("Key 'authsessionid' not found");
-            throw new SecSignIDRESTException("Key 'authsessionid' not found");
-        }
+        long authSessionId = rootObject.optLong("code", -1);
+//        if (authSessionId == -1) {
+//            logger.debug("Key 'authsessionid' not found");
+//            throw new SecSignIDRESTException("Key 'authsessionid' not found");
+//        }
 
-        String authSessionIconData = rootObject.optString("authsessionicondata", null);
-        String secSignId = rootObject.optString("secsignid", null);
-        if (secSignId == null) {
-            logger.debug("Key 'secsignid' not found");
-            throw new SecSignIDRESTException("Key 'secsignid' not found");
-        }
+        String authSessionIconData = rootObject.optString("data", null);
+        String secSignId = rootObject.optString("message", null);
+//        if (secSignId == null) {
+//            logger.debug("Key 'secsignid' not found");
+//            throw new SecSignIDRESTException("Key 'secsignid' not found");
+//        }
 
-        return new SecSignIDRESTCreateAuthSessionResponse(authSessionId, authSessionIconData, secSignId, false);
+        return new CreateAuthSessionResponse(authSessionId, authSessionIconData, secSignId, false);
     }
 
     /**
@@ -66,7 +66,7 @@ public class SecSignIDRESTCreateAuthSessionResponse {
      * @param secSignId the SecSign ID
      * @param frozen the frozen state of the SecSign ID
      */
-    private SecSignIDRESTCreateAuthSessionResponse(long authSessionId, String authSessionIconData, String secSignId, boolean frozen) {
+    private CreateAuthSessionResponse(long authSessionId, String authSessionIconData, String secSignId, boolean frozen) {
         this.authSessionId = authSessionId;
         this.authSessionIconData = authSessionIconData;
         this.secSignId = secSignId;

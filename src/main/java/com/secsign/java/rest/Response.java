@@ -2,7 +2,7 @@ package com.secsign.java.rest;
 
 import org.apache.http.StatusLine;
 
-public class SecSignIDRESTResponse {
+public class Response {
     /**
      * The success state of the response.
      */
@@ -22,8 +22,8 @@ public class SecSignIDRESTResponse {
      * Creates a failed response.
      * @return the response
      */
-    public static SecSignIDRESTResponse createFailedResponse() {
-        return new SecSignIDRESTResponse(false, null, null);
+    public static Response createFailedResponse() {
+        return new Response(false, null, null);
     }
 
     /**
@@ -32,8 +32,8 @@ public class SecSignIDRESTResponse {
      * @param content the content
      * @return the response
      */
-    public static SecSignIDRESTResponse createSuccessResponse(StatusLine statusLine, String content) {
-        return new SecSignIDRESTResponse(true, statusLine, content);
+    public static Response createSuccessResponse(StatusLine statusLine, String content) {
+        return new Response(true, statusLine, content);
     }
 
     /**
@@ -42,7 +42,7 @@ public class SecSignIDRESTResponse {
      * @param statusLine the status line
      * @param content the content
      */
-    private SecSignIDRESTResponse(boolean success, StatusLine statusLine, String content) {
+    private Response(boolean success, StatusLine statusLine, String content) {
         this.success = success;
         this.statusLine = statusLine;
         this.content = content;

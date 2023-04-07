@@ -17,28 +17,22 @@
 
 package com.secsign.keycloak.authenticator;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import com.secsign.java.rest.*;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.RequiredActionFactory;
-import org.keycloak.authentication.RequiredActionProvider;
 import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
-import com.secsign.java.rest.SecSignIDRESTCheckAuthSessionStateResponse;
-import com.secsign.java.rest.SecSignIDRESTCreateAuthSessionResponse;
-import com.secsign.java.rest.SecSignIDRESTException;
-import com.secsign.java.rest.SecSignIDRESTPluginRegistrationResponse;
-import com.secsign.java.rest.SecSignRESTConnector;
-import com.secsign.java.rest.SecSignRESTConnector.PluginType;
+import org.keycloak.models.utils.FormMessage;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
@@ -49,23 +43,23 @@ public class SecSignAuthenticator implements Authenticator {
 	private static final Logger logger = Logger.getLogger(SecSignAuthenticator.class);
 
     
-    private void initConnector(AuthenticationFlowContext context) throws NullPointerException, SecSignIDRESTException
+    private void initConnector(AuthenticationFlowContext context) throws NullPointerException, Exception
     {
     	//get serverURL and save to Utils for later access
 		AuthenticatorConfigModel authenticatorConfigModel = context.getAuthenticatorConfig();
-		
+
 		//check for config with custom serverURL
 		if (authenticatorConfigModel != null && authenticatorConfigModel.getConfig().get("SecSign_ServerURL")!=null &&
-				!authenticatorConfigModel.getConfig().get("SecSign_ServerURL").equals("")) 
+				!authenticatorConfigModel.getConfig().get("SecSign_ServerURL").equals(""))
     	{
 			//not default server, get all data from config
-			SecSignUtils.saveServerURL(authenticatorConfigModel.getConfig().get("SecSign_ServerURL"));
+			QrUtilities.saveServerURL(authenticatorConfigModel.getConfig().get("SecSign_ServerURL"));
 			String pinAccountUser=authenticatorConfigModel.getConfig().get("SecSign_PIN_ACCOUNT");
 			String pinAccountPassword=authenticatorConfigModel.getConfig().get("SecSign_PIN_PASSWORD");
-			SecSignUtils.setPinAccount(pinAccountUser, pinAccountPassword);
+			QrUtilities.setPinAccount(pinAccountUser, pinAccountPassword);
 		}else {
 			//defaultServer , get PinAccount user or create one, if none exists
-			SecSignUtils.saveServerURL(SecSignUtils.DEFAULT_SERVER);
+			QrUtilities.saveServerURL(QrUtilities.DEFAULT_SERVER);
 			UserModel secsignUser=null;
 	    	if(context.getSession().userLocalStorage().getUserByUsername(context.getRealm(), "SecSign_PinAccount")!=null)
 	    	{
@@ -75,24 +69,23 @@ public class SecSignAuthenticator implements Authenticator {
 	    		//create pinAccount user
 	    		secsignUser=context.getSession().userLocalStorage().addUser(context.getRealm(), "SecSign_PinAccount");
 	    	}
-			
+
 	    	//get Attributes from the user to get pinAccount data
 			Map<String, List<String>> attributesForSecSignUser=secsignUser.getAttributes();
 			if(attributesForSecSignUser.containsKey("pin_account_password"))
 			{
-				
+
 				String pinAccountPassword=attributesForSecSignUser.get("pin_account_password").get(0);
 				String pinAccountUser=attributesForSecSignUser.get("pin_account_user").get(0);
-				SecSignUtils.setPinAccount(pinAccountUser, pinAccountPassword);
-			}else {
-				SecSignIDRESTPluginRegistrationResponse response;
-				response = SecSignUtils.getRESTConnector().registerPlugin(context.getUriInfo().getBaseUri().toString(),"Keycloak Add-On at "+context.getUriInfo().getBaseUri().getHost(),"Keycloak Add-On",PluginType.CUSTOM);
-				secsignUser.setSingleAttribute("pin_account_password", response.getPassword());
-	    		secsignUser.setSingleAttribute("pin_account_user", response.getAccountName());
-	    		SecSignUtils.setPinAccount(response.getAccountName(), response.getPassword());
-				
-	    		
+				QrUtilities.setPinAccount(pinAccountUser, pinAccountPassword);
 			}
+			//				SecSignIDRESTPluginRegistrationResponse response;
+			//				response = SecSignUtils.getRESTConnector().registerPlugin(context.getUriInfo().getBaseUri().toString(),"Keycloak Add-On at "+context.getUriInfo().getBaseUri().getHost(),"Keycloak Add-On",PluginType.CUSTOM);
+			//				secsignUser.setSingleAttribute("pin_account_password", response.getPassword());
+			//	    		secsignUser.setSingleAttribute("pin_account_user", response.getAccountName());
+			//	    		SecSignUtils.setPinAccount(response.getAccountName(), response.getPassword());
+			//
+
 		}
     }
     
@@ -102,42 +95,14 @@ public class SecSignAuthenticator implements Authenticator {
      */
     @Override
     public void authenticate(AuthenticationFlowContext context) {
-		try {
-			initConnector(context);
-		} catch (NullPointerException e1) {
-			context.form().setAttribute("errorMsg", e1.getMessage());
-        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-			Response challenge = context.form()
-	                .createForm("secsign-error.ftl");
-	        context.challenge(challenge);
-	        return;
-		} catch (SecSignIDRESTException e1) {
-			context.form().setAttribute("errorMsg", e1.getMessage());
-        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-			Response challenge = context.form()
-	                .createForm("secsign-error.ftl");
-	        context.challenge(challenge);
-	        return;
-		}
-		
-    	
         String accessPassIcon="";
         String secsignid="";
         String authSessionID="";
-        //get saved session infos to show old authSession again (no double auth)
-        if(context.getAuthenticationSession().getAuthNote("secsign_authsessionid")!=null)
-        {
-        	accessPassIcon=context.getAuthenticationSession().getAuthNote("secsign_authsessionicondata");
-        	secsignid=context.getAuthenticationSession().getAuthNote("secsign_secsignid");
-        	authSessionID=context.getAuthenticationSession().getAuthNote("secsign_authsessionid");
-        	
-        }else {
 	        //no existing auth session, so start one
-	        SecSignRESTConnector connector= SecSignUtils.getRESTConnector();
+	        Connector connector= new Connector(QrUtilities.DEFAULT_SERVER);
 	        try {
-	        	secsignid=context.getUser().getFirstAttribute("secsignid");
-	        	
-	        	SecSignIDRESTCreateAuthSessionResponse result= connector.getAuthSession(secsignid, context.getRealm().getDisplayName()+"@Keycloak",context.getUriInfo().getBaseUri().toString(), true);
+
+	        	CreateAuthSessionResponse result= connector.getAuthSession(context.getRealm().getDisplayName()+"@Keycloak",context.getUriInfo().getBaseUri().toString(), true);
 	        	if(result.getFrozen())
 	        	{
 	        		context.form().setAttribute("errorMsg", "This SecSign ID is frozen due to concurrent login requests. The user needs to reactivate his account first. This can be done by tapping on the respective SecSign ID in the SecSign ID app.");
@@ -152,10 +117,7 @@ public class SecSignAuthenticator implements Authenticator {
 		        	authSessionID=String.valueOf(result.getAuthSessionId());
 		        	
 		        	//save in session to be able to show on refresh or leave page
-		        	context.getAuthenticationSession().setAuthNote("secsign_authsessionid", String.valueOf(result.getAuthSessionId()));
-		        	context.getAuthenticationSession().setAuthNote("secsign_authsessionicondata", String.valueOf(result.getAuthSessionIconData()));
-		        	context.getAuthenticationSession().setAuthNote("secsign_secsignid", String.valueOf(result.getSecSignId()));
-	        	}
+		        	}
 	        } catch (NullPointerException e1) {
 	        	context.form().setAttribute("errorMsg", e1.getMessage());
 	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
@@ -163,7 +125,8 @@ public class SecSignAuthenticator implements Authenticator {
 		                .createForm("secsign-error.ftl");
 		        context.challenge(challenge);
 		        return;
-			} catch (SecSignIDRESTException e1) {
+			}
+				catch (Exception e1) {
 				context.form().setAttribute("errorMsg", e1.getMessage());
 	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
 				Response challenge = context.form()
@@ -172,7 +135,7 @@ public class SecSignAuthenticator implements Authenticator {
 		        return;
 			}
 			
-        }
+
         //set variables for ftl template
         context.form().setAttribute("accessPassIconData", accessPassIcon);
         context.form().setAttribute("secsignid", secsignid);
@@ -187,8 +150,15 @@ public class SecSignAuthenticator implements Authenticator {
     
         
     }
+	private static final String QR_CODE_ATTR_NAME = "qrCode";
 
-    
+	private static final String ACTION_PARAM = "action";
+	private static final String VERIFY_REG_BTN = "hideBtn";
+	private static final String AUTHENTICATE_PARAM = "authenticate";
+	private static final String REGISTER_ACTION = "register";
+
+	private static final String VERIFY_HIDE_REG_BUTTON = "verifyHideRegButton";
+
    
     
     /**
@@ -199,60 +169,79 @@ public class SecSignAuthenticator implements Authenticator {
      */
     @Override
     public void action(AuthenticationFlowContext context) {
-        boolean authed=true;
-    	logger.debug("action is called");
+//		boolean authed=true;
+//
+//		String errorMsg="";
+//		//get authSessionID from Form
+//
+//		context.getAuthenticationSession().removeAuthNote("secsign_create_authsessionicondata");
+//		context.getAuthenticationSession().removeAuthNote("secsign_create_secsignid");
+//		context.getAuthenticationSession().removeAuthNote("secsign_create_authsessionid");
+//
+//		if (!authed) {
+//			context.form().setAttribute("errorMsg", errorMsg);
+//			context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
+//			Response challenge = context.form()
+//					.createForm("secsign-error.ftl");
+//			context.challenge(challenge);
+//
+//		} else {
+//			//authed, so proceed login
+//			//setCookie(context);
+//			context.success();
+//		}
+//
+//
+		MultivaluedMap<String, String> formParams = context.
+				getHttpRequest().getDecodedFormParameters();
+		String action= formParams.getFirst(ACTION_PARAM);
+		String verifyRegVerified = formParams.getFirst(VERIFY_REG_BTN);
 
-    	String errorMsg="";
-    	//get authSessionID from Form
-    	String authSessionID=context.getHttpRequest().getFormParameters().getFirst("secsign_authSessionID");
-    	switch(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))
-    	{
-			authed=true;
-    		case "checkAuth":
-    		{
-	    			try {
-	    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector();
-////
-	    	    	context.getAuthenticationSession().removeAuthNote("secsign_authsessionicondata");
-	    	    	context.getAuthenticationSession().removeAuthNote("secsign_secsignid");
-	    	    	context.getAuthenticationSession().removeAuthNote("secsign_authsessionid");
+		if (REGISTER_ACTION.equals(action)) {
+			// Redirect user to IBM Verify Registration (or next flow)
+			context.attempted();
+			return;
+		}
 
-	    	        if(!authed)
-	    	        {
-	    	        	context.form().setAttribute("errorMsg", errorMsg);
-	    	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-	    				Response challenge = context.form()
-	    		                .createForm("secsign-error.ftl");
-	    		        context.challenge(challenge);
-	    		        return;
-	    	        }else {
-	    	        	//authed, so proceed login
-	    		        //setCookie(context);
-	    		        context.success();
-	    	        }
-    			break;
-    		}
+		// Poll for the QR login
+		String qrLoginId = QrUtilities.getQrLoginId(context);
+		String qrLoginDsi = QrUtilities.getQrLoginDsi(context);
+		String qrLoginImage = QrUtilities.getQrLoginImage(context);
+		QrLoginResponse qrResponse = QrUtilities.
+				pollQrLoginStatus(context, qrLoginId, qrLoginDsi);
+
+		if (AUTHENTICATE_PARAM.equals(action) &&
+				"SUCCESS".equals(qrResponse.state) && qrResponse.userId != null) {
+			UserModel user = QrUtilities.matchCIUserIdToUserModel(context, qrResponse.userId);
+			if (user != null) {
+				context.setUser(user);
+				context.success();
+			} else {
+				context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgUserDoesNotExist")));
+				return;
 			}
-    		case "cancelAuth":
-    			try {
-    				SecSignRESTConnector connector=SecSignUtils.getRESTConnector();
-					connector.cancelAuthSession(authSessionID);
-					context.resetFlow();
-    			} catch (SecSignIDRESTException e1) {
-    				context.form().setAttribute("errorMsg", e1.getMessage());
-    	        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-    				Response challenge = context.form()
-    		                .createForm("secsign-error.ftl");
-    		        context.challenge(challenge);
-    		        return;
-    			}
-
-    			break;
-    		default:
-    			break;
-    	}
-    	
-    	
+		} else if (AUTHENTICATE_PARAM.equals(action) && "FAILED".equals(qrResponse.state)) {
+			// Attempted but authentication failed (not registered with IBM Verify)
+			Response challenge = context.form()
+					.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
+					.addError(new FormMessage("qrVerifyRegistrationRequiredError"))
+					.createForm("secsign-accesspass.ftl");
+			context.challenge(challenge);
+		} else if (AUTHENTICATE_PARAM.equals(action) && "TIMEOUT".equals(qrResponse.state)) {
+			context.form().addError(new FormMessage("qrFormLoginTimeOutError"));
+			logger.log(Logger.Level.INFO,context);
+			authenticate(context);
+		} else if (AUTHENTICATE_PARAM.equals(action) && "PENDING".equals(qrResponse.state)) {
+			Response challenge = context.form()
+					.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
+					.setAttribute(VERIFY_HIDE_REG_BUTTON, Boolean.parseBoolean(verifyRegVerified))
+					.createForm("secsign-accesspass.ftl");
+			context.challenge(challenge);
+		} else {
+			// CANCELED
+			context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
+			return;
+		}
     }
 
   
@@ -265,46 +254,25 @@ public class SecSignAuthenticator implements Authenticator {
     /**
      * needs to give true, as we want to authenticate the user by the auth process and not by provided data
      */
-    @Override
-    public boolean requiresUser() {
-        return true;
-    }
+	public void close() {
+		// No-op
+	}
 
-    /**
-     * determines whether the user is able to use this authenticator
-     * check SecSign ID saved?
-     */
-    @Override
-    public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
-    	//check whether SecSign Id is saved for user, else he needs to create one
-    	if(user.getFirstAttribute("secsignid")!=null)
-    	{
-    		return true;
-    	}else {
-    		return false;
-    	}
-    }
+	public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
+		// Hardcode to true for the time being
+		// Only users with verify configured should use this authenticator
+		return true;
+	}
 
-    /**
-     * sets all actions that are required to allow the authentication for the user if configuredFor is false
-     * e.g. creating a SecSign ID
-     */
-    @Override
-    public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
-    	
-    	//Add Create SecSign ID Action as required for not configured users
-        user.addRequiredAction("CREATE_SECSIGNID_NEW");
-        
-    }
+	public boolean requiresUser() {
+		// Doesn't require a user because the user will not yet have been authenticated
+		return false;
+	}
 
-    public List<RequiredActionFactory> getRequiredActions(KeycloakSession session) {
-        return Collections.singletonList((SecSignRequiredActionFactory)session.getKeycloakSessionFactory().getProviderFactory(RequiredActionProvider.class, SecSignRequiredAction.PROVIDER_ID));
-    }
+	public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
+		// No-op for the time being
+	}
 
-    @Override
-    public void close() {
 
-    }
 
-    
 }

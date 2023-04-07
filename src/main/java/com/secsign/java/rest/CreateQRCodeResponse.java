@@ -3,11 +3,11 @@ package com.secsign.java.rest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SecSignIDRESTCreateQRCodeResponse {
+public class CreateQRCodeResponse {
     /**
      * Logger for this class.
      */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecSignIDRESTCreateQRCodeResponse.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CreateQRCodeResponse.class);
 
     /**
      * The URL for the SecSign ID App to create the SecSign ID.
@@ -24,23 +24,23 @@ public class SecSignIDRESTCreateQRCodeResponse {
      * @param json the json of this response
      * @return the response
      * @throws JSONException thrown when a JSON error occurred
-     * @throws SecSignIDRESTException thrown when a JSON key was not found
+     * @throws Exception thrown when a JSON key was not found
      */
-    public static SecSignIDRESTCreateQRCodeResponse fromJson(String json) throws JSONException, SecSignIDRESTException {
+    public static CreateQRCodeResponse fromJson(String json) throws JSONException, Exception {
         JSONObject rootObject = new JSONObject(json);
         String createUrl = rootObject.optString("createurl", null);
         if (createUrl == null) {
             logger.debug("Key 'createurl' not found");
-            throw new SecSignIDRESTException("Key 'createurl' not found");
+            throw new Exception("Key 'createurl' not found");
         }
 
         String qrCodeBase64 = rootObject.optString("qrcodebase64", null);
         if (qrCodeBase64 == null) {
             logger.debug("Key 'qrcodebase64' not found");
-            throw new SecSignIDRESTException("Key 'qrcodebase64' not found");
+            throw new Exception("Key 'qrcodebase64' not found");
         }
 
-        return new SecSignIDRESTCreateQRCodeResponse(createUrl, qrCodeBase64);
+        return new CreateQRCodeResponse(createUrl, qrCodeBase64);
     }
 
     /**
@@ -48,7 +48,7 @@ public class SecSignIDRESTCreateQRCodeResponse {
      * @param createUrl the URL for the SecSign ID App to create the SecSign ID.
      * @param qrCodeBase64 the QR-Code to scan to create the SecSign ID
      */
-    private SecSignIDRESTCreateQRCodeResponse(String createUrl, String qrCodeBase64) {
+    private CreateQRCodeResponse(String createUrl, String qrCodeBase64) {
         this.createUrl = createUrl;
         this.qrCodeBase64 = qrCodeBase64;
     }
