@@ -33,10 +33,10 @@ import java.util.List;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class SecSignAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
+public class QrCodeAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
 
-    public static final String PROVIDER_ID = "secsign-authenticator";
-    private static final SecSignAuthenticator SINGLETON = new SecSignAuthenticator();
+    public static final String PROVIDER_ID = "Login with QrCode";
+    private static final QrCodeAuthenticator SINGLETON = new QrCodeAuthenticator();
 
     @Override
     public String getId() {
@@ -59,7 +59,7 @@ public class SecSignAuthenticatorFactory implements AuthenticatorFactory, Config
     }
 
     /**
-     * tells whether setRequiredActions is called in the Authenticator to allow the user to steup the auth (i.e. create a SecSign ID)
+     * tells whether setRequiredActions is called in the Authenticator to allow the user to steup the auth (i.e. create a QrLogin)
      */
     @Override
     public boolean isUserSetupAllowed() {
@@ -84,8 +84,8 @@ public class SecSignAuthenticatorFactory implements AuthenticatorFactory, Config
     static {
         ProviderConfigProperty property;
         property = new ProviderConfigProperty();
-        property.setName("SecSign_ServerURL");
-        property.setLabel("SecSign ID Server URL");
+        property.setName("QrLogin_ServerURL");
+        property.setLabel("QrLogin Server URL");
         property.setType(ProviderConfigProperty.STRING_TYPE);
         property.setHelpText("The full url of the Secsign ID Server to use. E.g. https://httpapi.secsign.com. Leave emtpy for the default Cloud Server");
         configProperties.add(property);
@@ -96,7 +96,7 @@ public class SecSignAuthenticatorFactory implements AuthenticatorFactory, Config
         property2.setName("SecSign_PIN_ACCOUNT");
         property2.setLabel("Pin Account User");
         property2.setType(ProviderConfigProperty.STRING_TYPE);
-        property2.setHelpText("The Pin Account User for the SecSign ID Server. Leave empty for the default Cloud Server");
+        property2.setHelpText("The Pin Account User for the QrLogin Server. Leave empty for the default Cloud Server");
         configProperties.add(property2);
         
         ProviderConfigProperty property3;
@@ -104,27 +104,27 @@ public class SecSignAuthenticatorFactory implements AuthenticatorFactory, Config
         property3.setName("SecSign_PIN_PASSWORD");
         property3.setLabel("Pin Account Password");
         property3.setType(ProviderConfigProperty.STRING_TYPE);
-        property3.setHelpText("The Pin Account Password for the SecSign ID Server. Leave empty for the default Cloud Server");
+        property3.setHelpText("The Pin Account Password for the QrLogin Server. Leave empty for the default Cloud Server");
         configProperties.add(property3);
-        
-        
-        
+
+
+
     }
 
 
     @Override
     public String getHelpText() {
-        return "MFA with SecSign ID is performed.";
+        return "MFA with QrLogin is performed.";
     }
 
     @Override
     public String getDisplayType() {
-        return "SecSign ID";
+        return "QrLogin";
     }
 
     @Override
     public String getReferenceCategory() {
-        return "SecSign ID";
+        return "QrLogin";
     }
 
     @Override

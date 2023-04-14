@@ -11,11 +11,10 @@
             <div id="secUi-main__container" class="secUi-beforeAnnim">
 			        <div id="secUi-pageAccesspass" class="secUi-page">
 				        <div id="secUi-pageAccesspass__accesspassicon">
-				            <p class="secUi-main__text">Access pass for <strong class="secUi-main__displayid">${secsignid}</strong></p>
 				            <div class="secUi-pageAccesspass__apcontainer">
 				                <img class="secUi-pageAccesspass__accesspass" id="secUi-pageAccesspass__accesspass" src="data:image/png;base64,${accessPassIconData}">
 				            </div>
-				            <p class="secUi-main__textsmall">Please select the right Access Pass<br>in your SecSignID app</p>
+				            <p class="secUi-main__textsmall">Please use Scan Qr Code<br>in your SCAMobile app</p>
 				        </div>
 				
 				        <button class="secUi-main__button secUi-custbutton" id="secUi-pageAccesspass__cancelbtn">Cancel</button>
@@ -23,17 +22,13 @@
 			 	</div>
 		 </div>   
 		 <form id="checkAuthForm"  action="${url.loginAction}" method="post">
-		 	<input id="secsign_accessPassAction" name="secsign_accessPassAction" type="hidden" value="checkAuth"> </input>
-		 	<input id="secsign_accessPassIconData" name="secsign_accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
-		 	<input id="secsign_authSessionID" name="secsign_authSessionID" type="hidden" value="${authSessionID}"> </input>
-		 	<input id="secsign_secsignid" name="secsign_secsignid" type="hidden" value="${secsignid}"> </input>
+		 	<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="checkAuth"> </input>
+		 	<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
 		 </form>
 		 
 		 <form id="cancelAuthForm"  action="${url.loginAction}" method="post">
-		 	<input id="secsign_accessPassAction" name="secsign_accessPassAction" type="hidden" value="cancelAuth"> </input>
-		 	<input id="secsign_accessPassIconData" name="secsign_accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
-		 	<input id="secsign_authSessionID" name="secsign_authSessionID" type="hidden" value="${authSessionID}"> </input>
-		 	<input id="secsign_secsignid" name="secsign_secsignid" type="hidden" value="${secsignid}"> </input>
+		 	<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="cancelAuth"> </input>
+		 	<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
 		 </form>
 		 <script>
 		 

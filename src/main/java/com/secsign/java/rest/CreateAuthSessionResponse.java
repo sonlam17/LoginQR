@@ -2,6 +2,7 @@ package com.secsign.java.rest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.keycloak.authentication.AuthenticationFlowContext;
 
 public class CreateAuthSessionResponse {
     /**
@@ -12,17 +13,15 @@ public class CreateAuthSessionResponse {
     /**
      * Response when the ID is frozen.
      */
-    public static final CreateAuthSessionResponse FROZEN = new CreateAuthSessionResponse(0, null, null, true);
+    public static final CreateAuthSessionResponse FROZEN = new CreateAuthSessionResponse( null, null, null, true);
 
-    /**
-     * The auth session ID.
-     */
-    private final long authSessionId;
+
 
     /**
      * The auth session icon data (Base64 encoded image).
      */
     private final String authSessionIconData;
+    private final String qrId;
 
     /**
      * The SecSign ID.
@@ -41,44 +40,33 @@ public class CreateAuthSessionResponse {
      * @throws JSONException thrown when a JSON error occurred
      * @throws Exception thrown when a JSON key was not found
      */
-    public static CreateAuthSessionResponse fromJson(String json) throws JSONException, Exception {
+    public static CreateAuthSessionResponse fromJson(String json, AuthenticationFlowContext context ) throws JSONException, Exception {
         JSONObject rootObject = new JSONObject(json);
-        long authSessionId = rootObject.optLong("code", -1);
-//        if (authSessionId == -1) {
-//            logger.debug("Key 'authsessionid' not found");
-//            throw new SecSignIDRESTException("Key 'authsessionid' not found");
-//        }
 
-        String authSessionIconData = rootObject.optString("data", null);
+
+        JSONObject data = rootObject.optJSONObject("data", null);
+        String authSessionIconData = data.optString("qrContent", null);
+        String qrId = data.optString("qrId", null);
         String secSignId = rootObject.optString("message", null);
-//        if (secSignId == null) {
-//            logger.debug("Key 'secsignid' not found");
-//            throw new SecSignIDRESTException("Key 'secsignid' not found");
-//        }
 
-        return new CreateAuthSessionResponse(authSessionId, authSessionIconData, secSignId, false);
+        context.getAuthenticationSession().setUserSessionNote("qr.login.id", qrId);
+        context.getAuthenticationSession().setUserSessionNote("qr.login.image", authSessionIconData);
+        return new CreateAuthSessionResponse( authSessionIconData, qrId, secSignId, false);
     }
 
     /**
      * Constructor for the response.
-     * @param authSessionId the auth session ID
+     *
      * @param authSessionIconData the auth session icon data (Base64 encoded image)
-     * @param secSignId the SecSign ID
-     * @param frozen the frozen state of the SecSign ID
+     * @param qrId
+     * @param secSignId           the SecSign ID
+     * @param frozen              the frozen state of the SecSign ID
      */
-    private CreateAuthSessionResponse(long authSessionId, String authSessionIconData, String secSignId, boolean frozen) {
-        this.authSessionId = authSessionId;
+    private CreateAuthSessionResponse( String authSessionIconData, String qrId, String secSignId, boolean frozen) {
         this.authSessionIconData = authSessionIconData;
+        this.qrId = qrId;
         this.secSignId = secSignId;
         this.frozen = frozen;
-    }
-
-    /**
-     * Get the auth session id.
-     * @return the auth session id
-     */
-    public long getAuthSessionId() {
-        return authSessionId;
     }
 
     /**

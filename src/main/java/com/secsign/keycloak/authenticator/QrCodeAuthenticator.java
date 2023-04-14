@@ -17,31 +17,30 @@
 
 package com.secsign.keycloak.authenticator;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.secsign.java.rest.*;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 import org.keycloak.models.utils.FormMessage;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class SecSignAuthenticator implements Authenticator {
+public class QrCodeAuthenticator implements Authenticator {
 
-	private static final Logger logger = Logger.getLogger(SecSignAuthenticator.class);
-	
+	private static final Logger logger = Logger.getLogger(QrCodeAuthenticator.class);
+
     
     /**
      * called when the auth process is started
@@ -50,16 +49,15 @@ public class SecSignAuthenticator implements Authenticator {
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         String accessPassIcon="";
-        String secsignid="";
-        String authSessionID="";
+
 	        //no existing auth session, so start one
 	        Connector connector= new Connector(QrUtilities.DEFAULT_SERVER);
 	        try {
 
-	        	CreateAuthSessionResponse result= connector.getAuthSession(context.getRealm().getDisplayName()+"@Keycloak",context.getUriInfo().getBaseUri().toString(), true);
+	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
 	        	if(result.getFrozen())
 	        	{
-	        		context.form().setAttribute("errorMsg", "This SecSign ID is frozen due to concurrent login requests. The user needs to reactivate his account first. This can be done by tapping on the respective SecSign ID in the SecSign ID app.");
+	        		context.form().setAttribute("errorMsg", "This QrLogin is frozen due to concurrent login requests. The user needs to reactivate his account first. This can be done by tapping on the respective QrLogin in the QrLogin app.");
 		        	context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
 					Response challenge = context.form()
 			                .createForm("secsign-error.ftl");
@@ -67,9 +65,7 @@ public class SecSignAuthenticator implements Authenticator {
 			        return;
 	        	}else {
 		        	accessPassIcon=result.getAuthSessionIconData();
-		        	secsignid=result.getSecSignId();
-		        	authSessionID=String.valueOf(result.getAuthSessionId());
-		        	
+
 		        	//save in session to be able to show on refresh or leave page
 		        	}
 	        } catch (NullPointerException e1) {
@@ -88,12 +84,9 @@ public class SecSignAuthenticator implements Authenticator {
 		        context.challenge(challenge);
 		        return;
 			}
-			
 
         //set variables for ftl template
         context.form().setAttribute("accessPassIconData", accessPassIcon);
-        context.form().setAttribute("secsignid", secsignid);
-        context.form().setAttribute("authSessionID", authSessionID);
        
         //show ftl template
         Response challenge = context.form()
@@ -106,67 +99,36 @@ public class SecSignAuthenticator implements Authenticator {
     }
 	private static final String QR_CODE_ATTR_NAME = "qrCode";
 
-	private static final String ACTION_PARAM = "action";
-	private static final String VERIFY_REG_BTN = "hideBtn";
-	private static final String AUTHENTICATE_PARAM = "authenticate";
-	private static final String REGISTER_ACTION = "register";
-
-	private static final String VERIFY_HIDE_REG_BUTTON = "verifyHideRegButton";
-
-   
-    
     /**
      * method called when form is send
-     * 1. start SecSign Auth
+     * 1. start QrLogin Auth
      * 2. Check AuthSession
      * 3. Login Done
      */
     @Override
     public void action(AuthenticationFlowContext context) {
-//		boolean authed=true;
-//
-//		String errorMsg="";
-//		//get authSessionID from Form
-//
-//		context.getAuthenticationSession().removeAuthNote("secsign_create_authsessionicondata");
-//		context.getAuthenticationSession().removeAuthNote("secsign_create_secsignid");
-//		context.getAuthenticationSession().removeAuthNote("secsign_create_authsessionid");
-//
-//		if (!authed) {
-//			context.form().setAttribute("errorMsg", errorMsg);
-//			context.form().setAttribute("tryAgainLink", context.getRefreshUrl(false));
-//			Response challenge = context.form()
-//					.createForm("secsign-error.ftl");
-//			context.challenge(challenge);
-//
-//		} else {
-//			//authed, so proceed login
-//			//setCookie(context);
-//			context.success();
-//		}
-//
-//
-		MultivaluedMap<String, String> formParams = context.
-				getHttpRequest().getDecodedFormParameters();
-		String action= formParams.getFirst(ACTION_PARAM);
-		String verifyRegVerified = formParams.getFirst(VERIFY_REG_BTN);
-
-		if (REGISTER_ACTION.equals(action)) {
-			// Redirect user to IBM Verify Registration (or next flow)
-			context.attempted();
-			return;
-		}
-
 		// Poll for the QR login
 		String qrLoginId = QrUtilities.getQrLoginId(context);
-		String qrLoginDsi = QrUtilities.getQrLoginDsi(context);
-		String qrLoginImage = QrUtilities.getQrLoginImage(context);
-		QrLoginResponse qrResponse = QrUtilities.
-				pollQrLoginStatus(context, qrLoginId, qrLoginDsi);
 
-		if (AUTHENTICATE_PARAM.equals(action) &&
-				"SUCCESS".equals(qrResponse.state) && qrResponse.userId != null) {
-			UserModel user = QrUtilities.matchCIUserIdToUserModel(context, qrResponse.userId);
+
+		String qrLoginImage = QrUtilities.getQrLoginImage(context);
+		QrLoginResponse qrResponse = Connector.
+				pollQrLoginStatus(context, qrLoginId);
+		System.out.println(qrResponse.state);
+		System.out.println(qrResponse.userName);
+		System.out.println("SUCCESS".equals(qrResponse.state) );
+		System.out.println(qrResponse.userName != null);
+		if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null) {
+			UserModel user = null;
+			System.out.println("ở đây");
+			try {
+				System.out.println(qrResponse.userName);
+				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName,qrResponse.accessToken);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
 			if (user != null) {
 				context.setUser(user);
 				context.success();
@@ -174,25 +136,25 @@ public class SecSignAuthenticator implements Authenticator {
 				context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgUserDoesNotExist")));
 				return;
 			}
-		} else if (AUTHENTICATE_PARAM.equals(action) && "FAILED".equals(qrResponse.state)) {
+		} else if ("FAILED".equals(qrResponse.state)) {
 			// Attempted but authentication failed (not registered with IBM Verify)
 			Response challenge = context.form()
 					.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
 					.addError(new FormMessage("qrVerifyRegistrationRequiredError"))
 					.createForm("secsign-accesspass.ftl");
 			context.challenge(challenge);
-		} else if (AUTHENTICATE_PARAM.equals(action) && "TIMEOUT".equals(qrResponse.state)) {
+		} else if ("TIMEOUT".equals(qrResponse.state)) {
 			context.form().addError(new FormMessage("qrFormLoginTimeOutError"));
 			logger.log(Logger.Level.INFO,context);
 			authenticate(context);
-		} else if (AUTHENTICATE_PARAM.equals(action) && "PENDING".equals(qrResponse.state)) {
-			Response challenge = context.form()
-					.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
-					.setAttribute(VERIFY_HIDE_REG_BUTTON, Boolean.parseBoolean(verifyRegVerified))
-					.createForm("secsign-accesspass.ftl");
-			context.challenge(challenge);
+		} else if ("PENDING".equals(qrResponse.state)) {
+			try {
+				TimeUnit.SECONDS.sleep(3);
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			action(context);
 		} else {
-			// CANCELED
 			context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
 			return;
 		}

@@ -276,11 +276,11 @@
 }
 
 #secsignid-secUi .secUi-pageAccesspass__apcontainer {
-    width: 100px;
+    width: 1000px;
     padding: 20px;
     background-color: #f6f6f6;
     margin: 30px auto;
-    border-radius: 100px;
+    border-radius: 200px;
     border: 2px solid #b9b9b9;
 }
 

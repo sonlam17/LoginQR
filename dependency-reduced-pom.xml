@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.secsign</groupId>
-  <artifactId>secsign-keycloak</artifactId>
-  <name>SecSign Keycloak Authenticator</name>
+  <groupId>com.qrLogin</groupId>
+  <artifactId>qr-login</artifactId>
+  <name>Login Qr Authenticator</name>
   <version>1.0.1</version>
   <build>
-    <finalName>secsign-authenticator</finalName>
+    <finalName>qr-login</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

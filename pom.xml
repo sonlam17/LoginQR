@@ -19,12 +19,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     
 
-    <name>SecSign Keycloak Authenticator</name>
+    <name>Login Qr Authenticator</name>
     <description/>
     <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.secsign</groupId>
-    <artifactId>secsign-keycloak</artifactId>
+	<groupId>com.qrLogin</groupId>
+    <artifactId>qr-login</artifactId>
 	<version>1.0.1</version>
     <packaging>jar</packaging>
 
@@ -73,7 +73,7 @@
     </dependencies>
 
     <build>
-        <finalName>secsign-authenticator</finalName>
+        <finalName>qr-login</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

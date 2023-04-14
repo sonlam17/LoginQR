@@ -3,10 +3,12 @@ package com.secsign.java.rest;
 public class QrLoginResponse {
 
     public String state;
-    public String userId;
+    public String userName;
+    public String accessToken;
 
-    public QrLoginResponse(String state, String userId) {
+    public QrLoginResponse(String state, String userName, String accessToken) {
         this.state = state;
-        this.userId = userId;
+        this.userName = userName;
+        this.accessToken = accessToken;
     }
 }
