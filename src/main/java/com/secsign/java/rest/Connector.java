@@ -207,7 +207,7 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
     public CreateAuthSessionResponse getAuthSession(AuthenticationFlowContext context) throws Exception {
 
         String endpointUrl = "/qrcode/getQrCode";
-        System.out.println("endpointUrl is "+endpointUrl );
+        System.out.println("endpointUrl is "+endpointUrl);
         Response response = getGetResponse(endpointUrl);
 
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

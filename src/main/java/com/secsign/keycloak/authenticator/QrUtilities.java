@@ -1,31 +1,21 @@
 package com.secsign.keycloak.authenticator;
 
 import com.secsign.java.rest.SecurityVerifyLoggingUtilities;
-import com.secsign.java.rest.SecurityVerifyUtilities;
-import com.secsign.java.rest.QrLoginResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.models.UserModel;
-import org.keycloak.representations.AccessToken;
+
 
 import java.io.IOException;
-import java.net.URI;
+
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class QrUtilities {
 	private static Logger logger = Logger.getLogger(QrUtilities.class);
 	
 	public static final String DEFAULT_SERVER = "http://183.91.3.60:8080/sca-test";
+
 	private static String serverURL=null;
 	private static String pinAccountUser=null;
 	private static String pinAccountPassword=null;

@@ -28,7 +28,6 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 import org.keycloak.models.utils.FormMessage;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
@@ -144,7 +143,6 @@ public class QrCodeAuthenticator implements Authenticator {
 					.createForm("secsign-accesspass.ftl");
 			context.challenge(challenge);
 		} else if ("TIMEOUT".equals(qrResponse.state)) {
-			context.form().addError(new FormMessage("qrFormLoginTimeOutError"));
 			logger.log(Logger.Level.INFO,context);
 			authenticate(context);
 		} else if ("PENDING".equals(qrResponse.state)) {
@@ -153,20 +151,16 @@ public class QrCodeAuthenticator implements Authenticator {
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			}
-			action(context);
+			context.form().setAttribute("accessPassIconData", qrLoginImage);
+			//show ftl template
+			Response challenge = context.form()
+					.createForm("secsign-accesspass.ftl");
+			context.challenge(challenge);
+//			action(context);
 		} else {
 			context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
-			return;
 		}
     }
-
-  
-    
-
-   
-
-
-
     /**
      * needs to give true, as we want to authenticate the user by the auth process and not by provided data
      */
