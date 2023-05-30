@@ -83,15 +83,11 @@ public class QrCodeAuthenticator implements Authenticator {
 		        context.challenge(challenge);
 		        return;
 			}
-
         //set variables for ftl template
         context.form().setAttribute("accessPassIconData", accessPassIcon);
-       
         //show ftl template
         Response challenge = context.form()
                 .createForm("secsign-accesspass.ftl");
-        
-        
         context.challenge(challenge);
     
         
