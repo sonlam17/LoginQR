@@ -50,18 +50,8 @@ public class QrUtilities {
 		SecurityVerifyLoggingUtilities.exit(logger, methodName, result);
 		return result;
 	}
-	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userName, String stringAccessToken) throws IOException, URISyntaxException {
+	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userName) throws IOException, URISyntaxException {
 		UserModel matchingUser = null;
-//		CloseableHttpClient httpClient = HttpClients.createDefault();
-//		URI uri = new URIBuilder()
-//				.setScheme("https")
-//				.setHost("https://keycloakproduction.com/iam/realms/demo/protocol/openid-connect/userinfo")
-//				.build();
-//		HttpGet getRequest = new HttpGet(uri);
-//		getRequest.addHeader("Authorization", "Bearer " + stringAccessToken);
-//		getRequest.addHeader("Accept", "application/json");
-//		CloseableHttpResponse response = httpClient.execute(getRequest);
-//		System.out.println(response);
 		if (userName != null) {
 			List<UserModel> users = context.getSession().users().getUsers(context.getRealm());
 			UserModel iterUser;

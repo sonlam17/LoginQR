@@ -17,14 +17,19 @@
 
 package com.secsign.keycloak.authenticator;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.secsign.java.rest.*;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
+import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.credential.CredentialProvider;
+import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
 
 import org.keycloak.models.utils.FormMessage;
@@ -64,7 +69,6 @@ public class QrCodeAuthenticator implements Authenticator {
 			        return;
 	        	}else {
 		        	accessPassIcon=result.getAuthSessionIconData();
-
 		        	//save in session to be able to show on refresh or leave page
 		        	}
 	        } catch (NullPointerException e1) {
@@ -103,58 +107,78 @@ public class QrCodeAuthenticator implements Authenticator {
     @Override
     public void action(AuthenticationFlowContext context) {
 		// Poll for the QR login
-		String qrLoginId = QrUtilities.getQrLoginId(context);
+		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+		String username = formData.getFirst("username");
+		UserModel user = null;
+		if(username.isEmpty())
+		{
+			String qrLoginId = QrUtilities.getQrLoginId(context);
+			String qrLoginImage = QrUtilities.getQrLoginImage(context);
+			QrLoginResponse qrResponse = Connector.
+					pollQrLoginStatus(context, qrLoginId);
+			if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null) {
 
-
-		String qrLoginImage = QrUtilities.getQrLoginImage(context);
-		QrLoginResponse qrResponse = Connector.
-				pollQrLoginStatus(context, qrLoginId);
-		System.out.println(qrResponse.state);
-		System.out.println(qrResponse.userName);
-		System.out.println("SUCCESS".equals(qrResponse.state) );
-		System.out.println(qrResponse.userName != null);
-		if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null) {
-			UserModel user = null;
-			System.out.println("ở đây");
+				System.out.println("ở đây");
+				try {
+					System.out.println(qrResponse.userName);
+					user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				} catch (URISyntaxException e) {
+					throw new RuntimeException(e);
+				}
+				if (user != null) {
+					context.setUser(user);
+					context.success();
+				} else {
+					context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgUserDoesNotExist")));
+					return;
+				}
+			} else if ("FAILED".equals(qrResponse.state)) {
+				// Attempted but authentication failed (not registered with IBM Verify)
+				Response challenge = context.form()
+						.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
+						.addError(new FormMessage("qrVerifyRegistrationRequiredError"))
+						.createForm("secsign-accesspass.ftl");
+				context.challenge(challenge);
+			} else if ("TIMEOUT".equals(qrResponse.state)) {
+				logger.log(Logger.Level.INFO,context);
+				authenticate(context);
+			} else if ("PENDING".equals(qrResponse.state)) {
+				try {
+					TimeUnit.SECONDS.sleep(3);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+				context.form().setAttribute("accessPassIconData", qrLoginImage);
+				//show ftl template
+				Response challenge = context.form()
+						.createForm("secsign-accesspass.ftl");
+				context.challenge(challenge);
+			} else {
+				context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
+			}
+		}
+		else {
 			try {
-				System.out.println(qrResponse.userName);
-				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName,qrResponse.accessToken);
+				user = QrUtilities.matchCIUserNameToUserModel(context, username);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);
 			}
-			if (user != null) {
-				context.setUser(user);
+			context.setUser(user);
+			System.out.println("OK...................");
+			System.out.println(validateAnswer(context));
+			if (validateAnswer(context)){
 				context.success();
-			} else {
-				context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgUserDoesNotExist")));
-				return;
 			}
-		} else if ("FAILED".equals(qrResponse.state)) {
-			// Attempted but authentication failed (not registered with IBM Verify)
-			Response challenge = context.form()
-					.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
-					.addError(new FormMessage("qrVerifyRegistrationRequiredError"))
-					.createForm("secsign-accesspass.ftl");
-			context.challenge(challenge);
-		} else if ("TIMEOUT".equals(qrResponse.state)) {
-			logger.log(Logger.Level.INFO,context);
-			authenticate(context);
-		} else if ("PENDING".equals(qrResponse.state)) {
-			try {
-				TimeUnit.SECONDS.sleep(3);
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
+			else {
+				Response challenge =  context.form()
+						.setError("Username or Password not correct!")
+						.createForm("secsign-accesspass.ftl");
+				context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 			}
-			context.form().setAttribute("accessPassIconData", qrLoginImage);
-			//show ftl template
-			Response challenge = context.form()
-					.createForm("secsign-accesspass.ftl");
-			context.challenge(challenge);
-//			action(context);
-		} else {
-			context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
 		}
     }
     /**
@@ -178,7 +202,16 @@ public class QrCodeAuthenticator implements Authenticator {
 	public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
 		// No-op for the time being
 	}
-
-
-
+	protected boolean validateAnswer(AuthenticationFlowContext context) {
+		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+		String secret = formData.getFirst("password");
+		String credentialId = formData.getFirst("credentialId");
+		PasswordCredentialProvider passwordCredentialProvider =new PasswordCredentialProvider(context.getSession());
+		if (credentialId == null || credentialId.isEmpty()) {
+			credentialId = passwordCredentialProvider
+					.getDefaultCredential(context.getSession(), context.getRealm(), context.getUser()).getId();
+		}
+		UserCredentialModel input = new UserCredentialModel(credentialId, "password", secret);
+		return passwordCredentialProvider.isValid(context.getRealm(), context.getUser(), input);
+	}
 }
