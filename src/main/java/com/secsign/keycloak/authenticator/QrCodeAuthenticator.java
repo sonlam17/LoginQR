@@ -93,8 +93,6 @@ public class QrCodeAuthenticator implements Authenticator {
         Response challenge = context.form()
                 .createForm("secsign-accesspass.ftl");
         context.challenge(challenge);
-    
-        
     }
 	private static final String QR_CODE_ATTR_NAME = "qrCode";
 
@@ -174,6 +172,7 @@ public class QrCodeAuthenticator implements Authenticator {
 				context.success();
 			}
 			else {
+				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 				Response challenge =  context.form()
 						.setError("Username or Password not correct!")
 						.createForm("secsign-accesspass.ftl");
@@ -187,7 +186,6 @@ public class QrCodeAuthenticator implements Authenticator {
 	public void close() {
 		// No-op
 	}
-
 	public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 		// Hardcode to true for the time being
 		// Only users with verify configured should use this authenticator
