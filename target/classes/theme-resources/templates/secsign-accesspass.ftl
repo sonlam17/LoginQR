@@ -18,37 +18,19 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			<a href="javascript:void(0)" id="grid-view" onclick="gridView()" data-toggle="tooltip" title="Lưới">
 				<label class="text-sm-left">
 					<b class="btn button-view-mode active" id = "view-mode-grid">
-						<span>Scan Qr-Code</span>
+						<span>Password</span>
 					</b>
 				</label>
 			</a>
 			<a href="javascript:void(0)" id="list-view" onclick="listView()" data-toggle="tooltip" title="Danh sách">
 				<label class="text-sm-left">
 					<b class="btn button-view-mode" id = "view-mode-list">
-						<span>Password</span>
+						<span>Scan Qr-Code</span>
 					</b>
 				</label>
 			</a>
 		</div>
 		<div class="row list-products" id = "product-grid">
-			<link rel="stylesheet" href="${url.resourcesPath}/SecSignIDUi.css" />
-			<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
-			<div id="secsignid-secUi" style="margin:40px auto;width:100%;">
-				<div id="secUi-main__container" class="secUi-beforeAnnim">
-						<div id="secUi-pageAccesspass" class="secUi-page">
-							<div id="secUi-pageAccesspass__accesspassicon">
-								<div class="secUi-pageAccesspass__apcontainer">
-									<img class="secUi-pageAccesspass__accesspass" id="secUi-pageAccesspass__accesspass" src="data:image/png;base64,${accessPassIconData}">
-								</div>
-								<p class="secUi-main__textsmall">Please use Scan Qr Code<br>in your SCAMobile app</p>
-							</div>
-
-							<button class="secUi-main__button secUi-custbutton" id="secUi-pageAccesspass__cancelbtn">Cancel</button>
-						</div>
-					</div>
-			 </div>
-		</div>
-		<div class="row list-products " id = "product-list" style="display: none;">
 			<#if realm.password>
 				<form
 						action="${url.loginAction}"
@@ -83,6 +65,19 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 						</@inputPrimary.kw>
 					</div>
 					<div class="flex items-center justify-between">
+						<#if realm.rememberMe && !usernameEditDisabled??>
+							<div class="flex items-center">
+								<input
+										class="border-secondary-200 h-4 rounded text-primary-600 w-4 focus:ring-primary-200 focus:ring-opacity-50"
+										id="rememberMe"
+										name="rememberMe"
+										type="checkbox"
+								>
+								<label class="block ml-2 text-secondary-900 text-sm" for="rememberMe">
+									${msg("rememberMe")}
+								</label>
+							</div>
+						</#if>
 						<#if realm.resetPasswordAllowed>
 							<@linkPrimary.kw href=url.loginResetCredentialsUrl>
 								<span class="text-sm">
@@ -101,6 +96,25 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			<#if realm.password && social.providers??>
 				<@provider.kw />
 			</#if>
+		</div>
+		<div class="row list-products " id = "product-list" style="display: none;">
+
+			<link rel="stylesheet" href="${url.resourcesPath}/SecSignIDUi.css" />
+			<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
+			<div id="secsignid-secUi" style="margin:40px auto;width:100%;">
+				<div id="secUi-main__container" class="secUi-beforeAnnim">
+					<div id="secUi-pageAccesspass" class="secUi-page">
+						<div id="secUi-pageAccesspass__accesspassicon">
+							<div class="secUi-pageAccesspass__apcontainer">
+								<img class="secUi-pageAccesspass__accesspass" id="secUi-pageAccesspass__accesspass" src="data:image/png;base64,${accessPassIconData}">
+							</div>
+							<p class="secUi-main__textsmall">Please use Scan Qr Code<br>in your SCAMobile app</p>
+						</div>
+
+						<button class="secUi-main__button secUi-custbutton" id="secUi-pageAccesspass__cancelbtn">Cancel</button>
+					</div>
+				</div>
+			</div>
 		</div>
 		<script type="text/javascript" >
 			function gridView(){
