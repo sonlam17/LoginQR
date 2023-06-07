@@ -14,11 +14,8 @@
                         <button class="secUi-main__button secUi-custbutton" id=tryagain>Try again</button>
                     </div>
 			 	</div>
-		 </div>   
-		 
+		 </div>
 		 <script>
-		 
-
 		 	jQuery(document).ready(function ($) {
 		 		
 		 		
@@ -32,11 +29,6 @@
 		 				window.location.href=window.location.href;
 			 		});
 	 			}
-		 		
-		 			
-	 			
-		 		
-		 		
 		 	});
 		 </script>
     </#if>
