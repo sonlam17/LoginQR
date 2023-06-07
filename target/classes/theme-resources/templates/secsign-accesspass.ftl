@@ -18,7 +18,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			<div class="card-body">
 				<!-- Logo -->
 				<div class="app-brand justify-content-center mb-4 mt-2">
-					<a href="index.html" class="app-brand-link gap-2">
+					<a href="http://cmcati.vn/" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
                   </span>
 						<span class="app-brand-text demo text-body fw-bold ms-1">CMC ATI</span>
@@ -57,7 +57,9 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 						</ul>
 						<div class="tab-content">
 							<div class="tab-pane fade show active" id="navs-pills-justified-home" role="tabpanel">
-								<form id="formAuthentication" class="mb-3" action="index.html" method="POST">
+									<#if section="header">
+										${msg("loginAccountTitle")}
+									<#elseif section="form">
  										 <#if realm.password>
                                             <form
                                                     action="${url.loginAction}"
@@ -130,26 +132,12 @@ displayMessage=!messagesPerField.existsError("username", "password" )
                                         <#if realm.password && social.providers??>
                                             <@provider.kw />
                                         </#if>
+                                        </#if>
 								</form>
 							</div>
 							<div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
-
-								<link rel="stylesheet" href="${url.resourcesPath}/SecSignIDUi.css" />
-								<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
-								<div id="secsignid-secUi" style="margin:40px auto;width:100%;">
-									<div id="secUi-main__container" class="secUi-beforeAnnim">
-										<div id="secUi-pageAccesspass" class="secUi-page">
-											<div id="secUi-pageAccesspass__accesspassicon">
-												<div class="secUi-pageAccesspass__apcontainer">
-													<img class="secUi-pageAccesspass__accesspass" id="secUi-pageAccesspass__accesspass" src="data:image/png;base64,${accessPassIconData}">
-												</div>
-												<p class="secUi-main__textsmall">Please use Scan Qr Code<br>in your SCAMobile app</p>
-											</div>
-
-											<button class="secUi-main__button secUi-custbutton" id="secUi-pageAccesspass__cancelbtn">Cancel</button>
-										</div>
-									</div>
-								</div>
+								<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
+								<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
 							</div>
 						</div>
 					</div>

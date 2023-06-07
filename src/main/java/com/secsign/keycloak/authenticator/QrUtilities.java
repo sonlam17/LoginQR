@@ -50,7 +50,7 @@ public class QrUtilities {
 		SecurityVerifyLoggingUtilities.exit(logger, methodName, result);
 		return result;
 	}
-	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userName) throws IOException, URISyntaxException {
+	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userName) {
 		UserModel matchingUser = null;
 		if (userName != null) {
 			List<UserModel> users = context.getSession().users().getUsers(context.getRealm());
@@ -66,10 +66,6 @@ public class QrUtilities {
 			}
 		} else {
 			// TODO: Error - mismatch / user does not exist
-		}
-		if(matchingUser==null)
-		{
-			throw new RuntimeException("not found this user: "+userName);
 		}
 		return matchingUser;
 	}

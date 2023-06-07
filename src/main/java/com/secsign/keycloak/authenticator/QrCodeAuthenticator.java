@@ -108,29 +108,32 @@ public class QrCodeAuthenticator implements Authenticator {
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
 		UserModel user = null;
+		System.out.println(username.isEmpty());
 		if(username.isEmpty())
 		{
 			String qrLoginId = QrUtilities.getQrLoginId(context);
 			String qrLoginImage = QrUtilities.getQrLoginImage(context);
 			QrLoginResponse qrResponse = Connector.
 					pollQrLoginStatus(context, qrLoginId);
+			System.out.println(qrResponse.state);
+			System.out.println(qrResponse.userName);
+			System.out.println("SUCCESS".equals(qrResponse.state) );
+			System.out.println(qrResponse.userName != null);
 			if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null) {
 
 				System.out.println("ở đây");
-				try {
-					System.out.println(qrResponse.userName);
-					user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} catch (URISyntaxException e) {
-					throw new RuntimeException(e);
-				}
+				System.out.println(qrResponse.userName);
+				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
+
 				if (user != null) {
 					context.setUser(user);
 					context.success();
 				} else {
-					context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgUserDoesNotExist")));
-					return;
+					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
+					Response challenge =  context.form()
+							.setError("Username or Password not correct!")
+							.createForm("secsign-accesspass.ftl");
+					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 				}
 			} else if ("FAILED".equals(qrResponse.state)) {
 				// Attempted but authentication failed (not registered with IBM Verify)
@@ -158,20 +161,22 @@ public class QrCodeAuthenticator implements Authenticator {
 			}
 		}
 		else {
-			try {
 				user = QrUtilities.matchCIUserNameToUserModel(context, username);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
-			context.setUser(user);
-			System.out.println("OK...................");
-			System.out.println(validateAnswer(context));
-			if (validateAnswer(context)){
-				context.success();
-			}
-			else {
+			if (user != null) {
+				context.setUser(user);
+				System.out.println("OK...................");
+				System.out.println(validateAnswer(context));
+				if (validateAnswer(context)){
+					context.success();
+				}
+				else {
+					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
+					Response challenge =  context.form()
+							.setError("Username or Password not correct!")
+							.createForm("secsign-accesspass.ftl");
+					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+				}
+			} else {
 				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 				Response challenge =  context.form()
 						.setError("Username or Password not correct!")
