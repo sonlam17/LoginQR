@@ -137,20 +137,21 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		UserModel user = null;
 		if(username==null)
 		{
+
 			String qrLoginId = QrUtilities.getQrLoginId(context);
 			String qrLoginImage = QrUtilities.getQrLoginImage(context);
 			QrLoginResponse qrResponse = Connector.
 					pollQrLoginStatus(context, qrLoginId);
-			System.out.println(qrResponse.state);
-			System.out.println(qrResponse.userName);
-			System.out.println("SUCCESS".equals(qrResponse.state) );
-			System.out.println(qrResponse.userName != null);
-			if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null) {
-
-				System.out.println("ở đây");
-				System.out.println(qrResponse.userName);
-				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
-
+			Boolean isAuth =checkStateQrCode(qrResponse);
+			while (isAuth==false){
+				try {
+					TimeUnit.SECONDS.sleep(2);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+				isAuth = checkStateQrCode( Connector.pollQrLoginStatus(context, qrLoginId));
+			}
+			user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
 				if (user != null) {
 					context.setUser(user);
 					context.success();
@@ -161,30 +162,6 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 							.createForm("secsign-accesspass.ftl");
 					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 				}
-			} else if ("FAILED".equals(qrResponse.state)) {
-				// Attempted but authentication failed (not registered with IBM Verify)
-				Response challenge = context.form()
-						.setAttribute(QR_CODE_ATTR_NAME, qrLoginImage)
-						.addError(new FormMessage("qrVerifyRegistrationRequiredError"))
-						.createForm("secsign-accesspass.ftl");
-				context.challenge(challenge);
-			} else if ("TIMEOUT".equals(qrResponse.state)) {
-				logger.log(Logger.Level.INFO,context);
-				authenticate(context);
-			} else if ("PENDING".equals(qrResponse.state)) {
-				try {
-					TimeUnit.SECONDS.sleep(3);
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-				}
-				context.form().setAttribute("accessPassIconData", qrLoginImage);
-				//show ftl template
-				Response challenge = context.form()
-						.createForm("secsign-accesspass.ftl");
-				context.challenge(challenge);
-			} else {
-				context.forceChallenge(FormUtilities.createErrorPage(context, new FormMessage("errorMsgLoginCanceled")));
-			}
 		}
 		else {
 			if (!validateForm(context, formData)) {
@@ -203,7 +180,16 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 	public void close() {
 		// No-op
 	}
+	public Boolean checkStateQrCode(QrLoginResponse qrResponse){
 
+		System.out.println(qrResponse.state);
+		System.out.println(qrResponse.userName);
+		System.out.println(qrResponse.userName != null);
+		if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null){
+			return true;
+		}
+		return false;
+	}
 	public void addCookie(AuthenticationFlowContext context, String name, String value, String path, String domain, String comment, int maxAge, boolean secure, boolean httpOnly) {
 		HttpResponse response = context.getSession().getContext().getContextObject(HttpResponse.class);
 		StringBuffer cookieBuf = new StringBuffer();
