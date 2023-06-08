@@ -135,8 +135,7 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
 		UserModel user = null;
-		System.out.println(username.isEmpty());
-		if(username.isEmpty())
+		if(username==null)
 		{
 			String qrLoginId = QrUtilities.getQrLoginId(context);
 			String qrLoginImage = QrUtilities.getQrLoginImage(context);

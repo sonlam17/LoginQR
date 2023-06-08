@@ -14,7 +14,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
     <#elseif section = "header">
         ${msg("loginTitleHtml",realm.name)}
     <#elseif section = "form">
-		<div class="card">
+		<div class="card" xmlns="http://www.w3.org/1999/html">
 			<div class="card-body">
 				<!-- Logo -->
 				<div class="app-brand justify-content-center mb-4 mt-2">
@@ -136,12 +136,28 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 								</form>
 							</div>
 							<div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
-								<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
-								<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
-								<form id="checkAuthForm"  action="${url.loginAction}" method="post">
-									<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="checkAuth"> </input>
-									<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
-								</form>
+								<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
+									<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
+									<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
+									<form id="checkAuthForm"  action="${url.loginAction}" method="post">
+										<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="checkAuth"> </input>
+										<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
+									</form>
+								<script>
+									jQuery(document).ready(function ($) {
+
+										$("#secUi-pageAccesspass__cancelbtn").click(function(e) {
+											$("#cancelAuthForm").submit();
+										});
+
+										var checkAuthSessionStateInterval = 3000;
+										var checkAuthSessionStateFunc = function () {
+
+											$("#checkAuthForm").submit();
+										}
+										checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
+									});
+								</script>
 							</div>
 						</div>
 					</div>
@@ -155,21 +171,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			</p>
 		</div>
 		</div>
-		<script>
-			jQuery(document).ready(function ($) {
 
-				$("#secUi-pageAccesspass__cancelbtn").click(function(e) {
-					$("#cancelAuthForm").submit();
-				});
-
-				var checkAuthSessionStateInterval = 3000;
-				var checkAuthSessionStateFunc = function () {
-
-					$("#checkAuthForm").submit();
-				}
-				checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
-			});
-		</script>
     </#if>
     <head>
     	<meta http-equiv="Cache-control" content="no-cache">
