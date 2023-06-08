@@ -82,33 +82,14 @@ public class QrCodeAuthenticatorFactory implements AuthenticatorFactory, Configu
     private static final List<ProviderConfigProperty> configProperties = new ArrayList<ProviderConfigProperty>();
 
     static {
+
         ProviderConfigProperty property;
         property = new ProviderConfigProperty();
-        property.setName("QrLogin_ServerURL");
-        property.setLabel("QrLogin Server URL");
+        property.setName("cookie.max.age");
+        property.setLabel("Cookie Max Age");
         property.setType(ProviderConfigProperty.STRING_TYPE);
-        property.setHelpText("The full url of the Secsign ID Server to use. E.g. https://httpapi.secsign.com. Leave emtpy for the default Cloud Server");
+        property.setHelpText("Max age in seconds of the Login_ATI_IAM.");
         configProperties.add(property);
-        
-        
-        ProviderConfigProperty property2;
-        property2 = new ProviderConfigProperty();
-        property2.setName("SecSign_PIN_ACCOUNT");
-        property2.setLabel("Pin Account User");
-        property2.setType(ProviderConfigProperty.STRING_TYPE);
-        property2.setHelpText("The Pin Account User for the QrLogin Server. Leave empty for the default Cloud Server");
-        configProperties.add(property2);
-        
-        ProviderConfigProperty property3;
-        property3 = new ProviderConfigProperty();
-        property3.setName("SecSign_PIN_PASSWORD");
-        property3.setLabel("Pin Account Password");
-        property3.setType(ProviderConfigProperty.STRING_TYPE);
-        property3.setHelpText("The Pin Account Password for the QrLogin Server. Leave empty for the default Cloud Server");
-        configProperties.add(property3);
-
-
-
     }
 
 

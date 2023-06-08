@@ -138,6 +138,10 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 							<div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
 								<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
 								<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
+								<form id="checkAuthForm"  action="${url.loginAction}" method="post">
+									<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="checkAuth"> </input>
+									<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
+								</form>
 							</div>
 						</div>
 					</div>
@@ -151,7 +155,21 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			</p>
 		</div>
 		</div>
+		<script>
+			jQuery(document).ready(function ($) {
 
+				$("#secUi-pageAccesspass__cancelbtn").click(function(e) {
+					$("#cancelAuthForm").submit();
+				});
+
+				var checkAuthSessionStateInterval = 3000;
+				var checkAuthSessionStateFunc = function () {
+
+					$("#checkAuthForm").submit();
+				}
+				checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
+			});
+		</script>
     </#if>
     <head>
     	<meta http-equiv="Cache-control" content="no-cache">

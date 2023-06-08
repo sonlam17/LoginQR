@@ -17,23 +17,31 @@
 
 package com.secsign.keycloak.authenticator;
 
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.secsign.java.rest.*;
 import org.jboss.logging.Logger;
+import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
+import org.jboss.resteasy.spi.HttpResponse;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
+import org.keycloak.common.util.ServerCookie;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.PasswordCredentialProvider;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.forms.login.LoginFormsProvider;
+import org.keycloak.models.*;
 
 import org.keycloak.models.utils.FormMessage;
+import org.keycloak.protocol.oidc.OIDCLoginProtocol;
+import org.keycloak.services.managers.AuthenticationManager;
+
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
@@ -41,10 +49,9 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class QrCodeAuthenticator implements Authenticator {
+public class QrCodeAuthenticator extends UsernamePasswordForm implements Authenticator {
 
 	private static final Logger logger = Logger.getLogger(QrCodeAuthenticator.class);
-
     
     /**
      * called when the auth process is started
@@ -53,7 +60,27 @@ public class QrCodeAuthenticator implements Authenticator {
     @Override
     public void authenticate(AuthenticationFlowContext context) {
         String accessPassIcon="";
+		MultivaluedMap<String, String> formData = new MultivaluedMapImpl<>();
+		String loginHint = context.getAuthenticationSession().getClientNote(OIDCLoginProtocol.LOGIN_HINT_PARAM);
 
+		String rememberMeUsername = AuthenticationManager.getRememberMeUsername(context.getRealm(), context.getHttpRequest().getHttpHeaders());
+
+		if (context.getUser() != null) {
+			LoginFormsProvider form = context.form();
+			form.setAttribute(LoginFormsProvider.USERNAME_HIDDEN, true);
+			form.setAttribute(LoginFormsProvider.REGISTRATION_DISABLED, true);
+			context.getAuthenticationSession().setAuthNote(USER_SET_BEFORE_USERNAME_PASSWORD_AUTH, "true");
+		} else {
+			context.getAuthenticationSession().removeAuthNote(USER_SET_BEFORE_USERNAME_PASSWORD_AUTH);
+			if (loginHint != null || rememberMeUsername != null) {
+				if (loginHint != null) {
+					formData.add(AuthenticationManager.FORM_USERNAME, loginHint);
+				} else {
+					formData.add(AuthenticationManager.FORM_USERNAME, rememberMeUsername);
+					formData.add("rememberMe", "on");
+				}
+			}
+		}
 	        //no existing auth session, so start one
 	        Connector connector= new Connector(QrUtilities.DEFAULT_SERVER);
 	        try {
@@ -161,28 +188,14 @@ public class QrCodeAuthenticator implements Authenticator {
 			}
 		}
 		else {
-				user = QrUtilities.matchCIUserNameToUserModel(context, username);
-			if (user != null) {
-				context.setUser(user);
-				System.out.println("OK...................");
-				System.out.println(validateAnswer(context));
-				if (validateAnswer(context)){
-					context.success();
-				}
-				else {
-					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
-					Response challenge =  context.form()
-							.setError("Username or Password not correct!")
-							.createForm("secsign-accesspass.ftl");
-					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-				}
-			} else {
+			if (!validateForm(context, formData)) {
 				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 				Response challenge =  context.form()
 						.setError("Username or Password not correct!")
 						.createForm("secsign-accesspass.ftl");
 				context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 			}
+			context.success();
 		}
     }
     /**
@@ -191,6 +204,15 @@ public class QrCodeAuthenticator implements Authenticator {
 	public void close() {
 		// No-op
 	}
+
+	public void addCookie(AuthenticationFlowContext context, String name, String value, String path, String domain, String comment, int maxAge, boolean secure, boolean httpOnly) {
+		HttpResponse response = context.getSession().getContext().getContextObject(HttpResponse.class);
+		StringBuffer cookieBuf = new StringBuffer();
+		ServerCookie.appendCookieValue(cookieBuf, 1, name, value, path, domain, comment, maxAge, secure, httpOnly, null);
+		String cookie = cookieBuf.toString();
+		response.getOutputHeaders().add(HttpHeaders.SET_COOKIE, cookie);
+	}
+
 	public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 		// Hardcode to true for the time being
 		// Only users with verify configured should use this authenticator
@@ -204,17 +226,5 @@ public class QrCodeAuthenticator implements Authenticator {
 
 	public void setRequiredActions(KeycloakSession session, RealmModel realm, UserModel user) {
 		// No-op for the time being
-	}
-	protected boolean validateAnswer(AuthenticationFlowContext context) {
-		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
-		String secret = formData.getFirst("password");
-		String credentialId = formData.getFirst("credentialId");
-		PasswordCredentialProvider passwordCredentialProvider =new PasswordCredentialProvider(context.getSession());
-		if (credentialId == null || credentialId.isEmpty()) {
-			credentialId = passwordCredentialProvider
-					.getDefaultCredential(context.getSession(), context.getRealm(), context.getUser()).getId();
-		}
-		UserCredentialModel input = new UserCredentialModel(credentialId, "password", secret);
-		return passwordCredentialProvider.isValid(context.getRealm(), context.getUser(), input);
 	}
 }
