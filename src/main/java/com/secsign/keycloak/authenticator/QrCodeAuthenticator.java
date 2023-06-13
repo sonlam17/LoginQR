@@ -135,33 +135,42 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
 		UserModel user = null;
-		if(username==null)
+		if(username.isEmpty())
 		{
-
-			String qrLoginId = QrUtilities.getQrLoginId(context);
-			String qrLoginImage = QrUtilities.getQrLoginImage(context);
-			QrLoginResponse qrResponse = Connector.
-					pollQrLoginStatus(context, qrLoginId);
-			Boolean isAuth =checkStateQrCode(qrResponse);
-			while (isAuth==false){
-				try {
-					TimeUnit.SECONDS.sleep(2);
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
+			switch(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))
+			{
+				case "checkAuth":
+				{
+					String qrLoginId = QrUtilities.getQrLoginId(context);
+					QrLoginResponse qrResponse = Connector.
+							pollQrLoginStatus(context, qrLoginId);
+					Boolean isAuth =checkStateQrCode(qrResponse);
+					while (isAuth==false){
+						try {
+							TimeUnit.SECONDS.sleep(2);
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+						}
+						isAuth = checkStateQrCode( Connector.pollQrLoginStatus(context, qrLoginId));
+					}
+					user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
+					if (user != null) {
+						context.setUser(user);
+						context.success();
+					} else {
+						context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
+						Response challenge =  context.form()
+								.setError("Username or Password not correct!")
+								.createForm("secsign-accesspass.ftl");
+						context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+					}
 				}
-				isAuth = checkStateQrCode( Connector.pollQrLoginStatus(context, qrLoginId));
+				case "cancelAuth":
+						context.resetFlow();
+					break;
+				default:
+					break;
 			}
-			user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
-				if (user != null) {
-					context.setUser(user);
-					context.success();
-				} else {
-					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
-					Response challenge =  context.form()
-							.setError("Username or Password not correct!")
-							.createForm("secsign-accesspass.ftl");
-					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-				}
 		}
 		else {
 			if (!validateForm(context, formData)) {
