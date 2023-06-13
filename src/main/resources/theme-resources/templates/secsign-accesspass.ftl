@@ -140,7 +140,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 								<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
 									<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
 									<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
-<#--								<script>-->
+								</script>
 <#--									jQuery(document).ready(function ($) {-->
 
 <#--										$("#secUi-pageAccesspass__cancelbtn").click(function(e) {-->
@@ -174,9 +174,25 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 		</form>
 		<form id="cancelAuthForm"  action="${url.loginAction}" method="post">
 			<input id="secsign_accessPassAction" name="secsign_accessPassAction" type="hidden" value="cancelAuth"> </input>
-			<input id="secsign_authSessionID" name="qrId" type="hidden" value="${qrId}"> </input>
+			<input type="hidden" name="parameter" value="${qrId}" />
 		</form>
-	<script>
+		<script>
+			function passwordClick(){
+				deleteData()
+				// if (document.querySelector('.nav-link.active').id === 'navs-pills-justified-home') {
+					let cancelAuthForm = document.getElementById("cancelAuthForm");
+					console.log("áđâsdasđ")
+					cancelAuthForm.submit();
+				// }
+			}
+			function deleteData() {
+				fetch(`https://sec.cmcati.vn/sca-0.2/qrcode/deleteQr?qrId=${qrId}`, {
+					method: 'DELETE'
+				})
+						.catch(error => {
+							console.error('Error deleting data:', error);
+						});
+			}
 		document.addEventListener('DOMContentLoaded',function(){
 				// Khi mới vào trang đăng nhập, chạy phần password
 				// let cancelAuthForm = document.getElementById("cancelAuthForm");
@@ -190,12 +206,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			  checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
 		  }
 
-		  // Hàm cho oassword
-		  function passwordClick(){
-			  let cancelAuthForm = document.getElementById("cancelAuthForm");
-			  cancelAuthForm.submit();
-		  }
-	</script>
+		</script>
 		//
 
     </#if>

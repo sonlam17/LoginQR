@@ -162,10 +162,13 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 						qrResponse = Connector.
 								pollQrLoginStatus(context, qrLoginId);
 						if (qrResponse == null){
-							context.cancelLogin();
+							System.out.println("1msmd");
 							break;
 						}
 						isAuth = checkStateQrCode(qrResponse);
+					}
+					if (qrResponse == null){
+							throw new RuntimeException("a");
 					}
 					user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
 					System.out.println(qrResponse.userName);

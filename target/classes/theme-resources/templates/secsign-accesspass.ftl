@@ -28,7 +28,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 				<div class="">
 					<div class="nav-align-top mb-4">
 						<ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-							<li class="nav-item">
+							<li class="nav-item" onclick="passwordClick()">
 								<button
 										type="button"
 										class="nav-link active"
@@ -41,7 +41,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 									<i class="tf-icons ti ti-home ti-xs me-1"></i> Password
 								</button>
 							</li>
-							<li class="nav-item">
+							<li class="nav-item" onclick="qrClick()">
 								<button
 										type="button"
 										class="nav-link"
@@ -66,6 +66,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
                                                     class="m-0 space-y-4"
                                                     method="post"
                                                     onsubmit="login.disabled = true; return true;">
+												<input id="secsign_authSessionID" name="qrId" type="hidden" value="${qrId}"> </input>
                                                 <input
                                                         name="credentialId"
                                                         type="hidden"
@@ -139,25 +140,21 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 								<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
 									<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
 									<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
-									<form id="checkAuthForm"  action="${url.loginAction}" method="post">
-										<input id="secsign_accessPassAction" name="accessPassAction" type="hidden" value="checkAuth"> </input>
-										<input id="secsign_accessPassIconData" name="accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
-									</form>
-								<script>
-									jQuery(document).ready(function ($) {
-
-										$("#secUi-pageAccesspass__cancelbtn").click(function(e) {
-											$("#cancelAuthForm").submit();
-										});
-
-										var checkAuthSessionStateInterval = 3000;
-										var checkAuthSessionStateFunc = function () {
-
-											$("#checkAuthForm").submit();
-										}
-										checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
-									});
 								</script>
+<#--									jQuery(document).ready(function ($) {-->
+
+<#--										$("#secUi-pageAccesspass__cancelbtn").click(function(e) {-->
+<#--											$("#cancelAuthForm").submit();-->
+<#--										});-->
+
+<#--										var checkAuthSessionStateInterval = 3000;-->
+<#--										var checkAuthSessionStateFunc = function () {-->
+
+<#--											$("#checkAuthForm").submit();-->
+<#--										}-->
+<#--										checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);-->
+<#--									});-->
+<#--								</script>-->
 							</div>
 						</div>
 					</div>
@@ -171,6 +168,46 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			</p>
 		</div>
 		</div>
+		<form id="checkAuthForm"  action="${url.loginAction}" method="post">
+			<input id="secsign_accessPassAction" name="secsign_accessPassAction" type="hidden" value="checkAuth"> </input>
+			<input id="secsign_accessPassIconData" name="secsign_accessPassIconData" type="hidden" value="${accessPassIconData}"> </input>
+		</form>
+		<form id="cancelAuthForm"  action="${url.loginAction}" method="post">
+			<input id="secsign_accessPassAction" name="secsign_accessPassAction" type="hidden" value="cancelAuth"> </input>
+			<input type="hidden" name="parameter" value="${qrId}" />
+		</form>
+		<script>
+			function passwordClick(){
+				deleteData()
+
+					let cancelAuthForm = document.getElementById("cancelAuthForm");
+					console.log("áđâsdasđ")
+					cancelAuthForm.submit();
+
+			}
+			function deleteData() {
+				fetch(`https://sec.cmcati.vn/sca-0.2/qrcode/deleteQr?qrId=${qrId}`, {
+					method: 'DELETE'
+				})
+						.catch(error => {
+							console.error('Error deleting data:', error);
+						});
+			}
+		document.addEventListener('DOMContentLoaded',function(){
+				// Khi mới vào trang đăng nhập, chạy phần password
+				// let cancelAuthForm = document.getElementById("cancelAuthForm");
+				// cancelAuthForm.submit();
+			});
+			// Hàm cho QR
+		  function qrClick(){
+			  let checkAuthSessionStateInterval = 10000;
+			  let checkAuthForm = document.getElementById("checkAuthForm");
+			  let checkAuthSessionStateFunc = checkAuthForm.submit();
+			  checkSessionTimerId = window.setTimeout(checkAuthSessionStateFunc, checkAuthSessionStateInterval);
+		  }
+
+		</script>
+		//
 
     </#if>
     <head>

@@ -97,6 +97,11 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
         Response response = getGetResponse(endpointUrl);
         JSONObject rootObject = new JSONObject(response.getContent());
         JSONObject data = rootObject.optJSONObject("data", null);
+
+        if (data==null){
+            System.out.println(data);
+            throw new Exception();
+                    }
         String state = data.optString("state", null);
         String accessToken = data.optString("accessToken", null);
         JSONObject user = data.optJSONObject("userParticipant", null);
