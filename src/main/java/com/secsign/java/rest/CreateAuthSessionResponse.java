@@ -81,8 +81,8 @@ public class CreateAuthSessionResponse {
      * Get the SecSign ID.
      * @return the SecSign ID
      */
-    public String getSecSignId() {
-        return secSignId;
+    public String getQrId() {
+        return qrId;
     }
 
     /**

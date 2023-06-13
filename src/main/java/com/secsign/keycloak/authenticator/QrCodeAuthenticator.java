@@ -59,7 +59,14 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
      */
     @Override
     public void authenticate(AuthenticationFlowContext context) {
+//		System.out.println(context.getHttpRequest().);
+//		System.out.println(context.getHttpRequest().getDecodedFormParameters().getFirst("qrId"));
+//		if (context.getHttpRequest()){
+//			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
+//			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
+//		}
         String accessPassIcon="";
+		String qrId="";
 		MultivaluedMap<String, String> formData = new MultivaluedMapImpl<>();
 		String loginHint = context.getAuthenticationSession().getClientNote(OIDCLoginProtocol.LOGIN_HINT_PARAM);
 
@@ -96,6 +103,7 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 			        return;
 	        	}else {
 		        	accessPassIcon=result.getAuthSessionIconData();
+					qrId=result.getQrId();
 		        	//save in session to be able to show on refresh or leave page
 		        	}
 	        } catch (NullPointerException e1) {
@@ -115,13 +123,13 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		        return;
 			}
         //set variables for ftl template
+		context.form().setAttribute("qrId", qrId);
         context.form().setAttribute("accessPassIconData", accessPassIcon);
         //show ftl template
         Response challenge = context.form()
                 .createForm("secsign-accesspass.ftl");
         context.challenge(challenge);
     }
-	private static final String QR_CODE_ATTR_NAME = "qrCode";
 
     /**
      * method called when form is send
@@ -135,26 +143,35 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
 		UserModel user = null;
-		if(username.isEmpty())
+		if(username==null)
 		{
+			System.out.println(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"));
 			switch(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))
 			{
 				case "checkAuth":
 				{
 					String qrLoginId = QrUtilities.getQrLoginId(context);
-					QrLoginResponse qrResponse = Connector.
-							pollQrLoginStatus(context, qrLoginId);
-					Boolean isAuth =checkStateQrCode(qrResponse);
+					QrLoginResponse qrResponse = null;
+					Boolean isAuth = checkStateQrCode(Connector.pollQrLoginStatus(context, qrLoginId));
 					while (isAuth==false){
 						try {
 							TimeUnit.SECONDS.sleep(2);
 						} catch (InterruptedException ie) {
 							Thread.currentThread().interrupt();
 						}
-						isAuth = checkStateQrCode( Connector.pollQrLoginStatus(context, qrLoginId));
+						qrResponse = Connector.
+								pollQrLoginStatus(context, qrLoginId);
+						if (qrResponse == null){
+							context.cancelLogin();
+							break;
+						}
+						isAuth = checkStateQrCode(qrResponse);
 					}
 					user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
+					System.out.println(qrResponse.userName);
+					System.out.println(user);
 					if (user != null) {
+						System.out.println("success");
 						context.setUser(user);
 						context.success();
 					} else {
@@ -164,15 +181,15 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 								.createForm("secsign-accesspass.ftl");
 						context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
 					}
-				}
-				case "cancelAuth":
-						context.resetFlow();
 					break;
+				}
 				default:
 					break;
 			}
 		}
 		else {
+			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
+			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
 				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 				Response challenge =  context.form()
@@ -186,8 +203,9 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
     /**
      * needs to give true, as we want to authenticate the user by the auth process and not by provided data
      */
+	@Override
 	public void close() {
-		// No-op
+
 	}
 	public Boolean checkStateQrCode(QrLoginResponse qrResponse){
 

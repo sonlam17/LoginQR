@@ -118,6 +118,19 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
 //		IBMSecurityVerifyLoggingUtilities.exit(logger, methodName, qrResponse);
     return qrResponse;
 }
+    public static void deleteQr(AuthenticationFlowContext context, String qrLoginId) {
+        final String methodName = "deleteQr";
+        SecurityVerifyLoggingUtilities.entry(logger, methodName, null, qrLoginId);
+        try {
+            String endpointUrl = "/qrcode/deleteQr?qrId=" + qrLoginId;
+            System.out.println("endpointUrl is " + endpointUrl);
+            Response response = getGetResponse(endpointUrl);
+            JSONObject rootObject = new JSONObject(response.getContent());
+            System.out.println(rootObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public UserModel matchCIUserIdToUserModel(AuthenticationFlowContext context, String userId) throws Exception {
         final String methodName = "matchCIUserIdToUserModel";
 
