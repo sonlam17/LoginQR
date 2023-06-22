@@ -20,6 +20,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 				<div class="app-brand justify-content-center mb-4 mt-2">
 					<a href="http://cmcati.vn/" class="app-brand-link gap-2">
                   <span class="app-brand-logo demo">
+                  <img src="${url.resourcesPath}/favicon.ico" alt="Logo" class="app-brand-logo demo">
                   </span>
 						<span class="app-brand-text demo text-body fw-bold ms-1">CMC ATI</span>
 					</a>
