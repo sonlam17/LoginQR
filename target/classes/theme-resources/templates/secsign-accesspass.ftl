@@ -28,7 +28,13 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 				<div class="">
 					<div class="nav-align-top mb-4">
 						<ul class="nav nav-pills mb-3 nav-fill" role="tablist">
-							<li class="nav-item" onclick="passwordClick()">
+							<li class="nav-item disabled-li" id="password-btn" onclick="passwordClick()">
+								<style>
+									.disabled-li {
+										pointer-events: none;
+										cursor: default;
+									}
+								</style>
 								<button
 										type="button"
 										class="nav-link active"
@@ -41,7 +47,13 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 									<i class="tf-icons ti ti-home ti-xs me-1"></i> Password
 								</button>
 							</li>
-							<li class="nav-item" onclick="qrClick()">
+							<li class="nav-item" id="qr-btn" onclick="qrClick()">
+								<style>
+									.disabled-li {
+										pointer-events: none;
+										cursor: default;
+									}
+								</style>
 								<button
 										type="button"
 										class="nav-link"
@@ -178,11 +190,21 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 		</form>
 		<script>
 			function passwordClick(){
-				deleteData()
+				// Disable click on password-btn
+				let passwordBTN = document.getElementById("password-btn");
+				passwordBTN.classList.add("disabled-li");
 
-					let cancelAuthForm = document.getElementById("cancelAuthForm");
-					console.log("áđâsdasđ")
-					cancelAuthForm.submit();
+				// enable click on QR btn
+				let qrBTN = document.getElementById("qr-btn");
+				qrBTN.classList.remove("disabled-li");
+
+
+				deleteData()
+				// if (document.querySelector('.nav-link.active').id === 'navs-pills-justified-home') {
+				let cancelAuthForm = document.getElementById("cancelAuthForm");
+				console.log("áđâsdasđ")
+				cancelAuthForm.submit();
+				// }
 
 			}
 			function deleteData() {
@@ -200,6 +222,14 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 			});
 			// Hàm cho QR
 		  function qrClick(){
+			  // Disable click on QR btn
+			  let qrBTN = document.getElementById("qr-btn");
+			  qrBTN.classList.add("disabled-li");
+
+			  // enable click on password-btn
+			  let passwordBTN = document.getElementById("password-btn");
+			  passwordBTN.classList.remove("disabled-li");
+
 			  let checkAuthSessionStateInterval = 10000;
 			  let checkAuthForm = document.getElementById("checkAuthForm");
 			  let checkAuthSessionStateFunc = checkAuthForm.submit();
