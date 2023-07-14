@@ -54,6 +54,11 @@ public class Connector {
      */
 
     private static String serverUrl;
+    public enum MethodType{
+        POST,
+        DELETE,
+        GET
+    }
     
     public enum PluginType{
     	ATLASSIAN , //1
@@ -94,7 +99,7 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
     try {
         String endpointUrl = "/qrcode/getStateAuthenticate?qrId=" + qrLoginId;
         System.out.println("endpointUrl is " + endpointUrl);
-        Response response = getGetResponse(endpointUrl);
+        Response response = getResponse(endpointUrl, MethodType.GET);
         JSONObject rootObject = new JSONObject(response.getContent());
         JSONObject data = rootObject.optJSONObject("data", null);
 
@@ -129,7 +134,8 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
         try {
             String endpointUrl = "/qrcode/deleteQr?qrId=" + qrLoginId;
             System.out.println("endpointUrl is " + endpointUrl);
-            Response response = getGetResponse(endpointUrl);
+            Response response = getResponse(endpointUrl, MethodType.DELETE);
+            System.out.println(response);
             JSONObject rootObject = new JSONObject(response.getContent());
             System.out.println(rootObject);
         } catch (Exception e) {
@@ -226,7 +232,7 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
 
         String endpointUrl = "/qrcode/getQrCode";
         System.out.println("endpointUrl is "+endpointUrl);
-        Response response = getGetResponse(endpointUrl);
+        Response response = getResponse(endpointUrl, MethodType.GET);
 
         if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             try {
@@ -253,11 +259,11 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
      * @return the {@link Response}
      * @throws Exception thrown if a error occurred
      */
-    private static Response getGetResponse(String endpointUrl) throws Exception {
+    private static Response getResponse(String endpointUrl, MethodType type) throws Exception {
         try {
             HttpResponse response = null;
             try {
-                response = executeGet(endpointUrl);
+                response = execute(endpointUrl, type);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
                 throw new Exception("Cannot reach ID server.");
@@ -293,7 +299,12 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
 
         return httpGet;
     }
+    private static HttpDelete createHttpDelete(String serverUrl, String endpointUrl) throws AuthenticationException {
+        HttpDelete httpDelete = new HttpDelete(serverUrl + endpointUrl);
+        addRequiredHeadersToRequest(httpDelete);
 
+        return httpDelete;
+    }
 
 
     /**
@@ -322,12 +333,19 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
      * @throws IOException
      * @throws AuthenticationException
      */
-    private static HttpResponse executeGet(String endpointUrl) throws IOException, AuthenticationException {
+    private static HttpResponse execute(String endpointUrl, MethodType Type) throws IOException, AuthenticationException {
     	CloseableHttpClient httpClient = HttpClientBuilder.create().useSystemProperties().build();
-       
-
         try {
-            return executeGetForServer(httpClient, serverUrl, endpointUrl);
+            switch (Type){
+                case GET:
+                    return executeGetForServer(httpClient, serverUrl, endpointUrl);
+//                case POST:
+//                    return executeDelForServer(httpClient, serverUrl, endpointUrl);
+                case DELETE:
+                    return executeDelForServer(httpClient, serverUrl, endpointUrl);
+                default:
+                    return null;
+            }
         } catch(IOException e) {
             System.out.println("Cannot reach server with URL '" + serverUrl + "'.");
             System.out.println(e.getMessage());
@@ -360,7 +378,12 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
         System.out.println("Call: " + httpGet.getMethod() + " on " + httpGet.getURI().toString());
         return httpClient.execute(httpGet);
     }
-
+    private static HttpResponse executeDelForServer(HttpClient httpClient, String serverUrl, String endpointUrl) throws IOException, AuthenticationException {
+        System.out.println("Before CreatGet "+serverUrl );
+        HttpDelete httpDelete = createHttpDelete(serverUrl, endpointUrl);
+        System.out.println("Call: " + httpDelete.getMethod() + " on " + httpDelete.getURI().toString());
+        return httpClient.execute(httpDelete);
+    }
 
 
     /**

@@ -194,6 +194,7 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
+				System.out.println("log 12345556");
 				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 				Response challenge =  context.form()
 						.setError("Username or Password not correct!")
@@ -220,13 +221,13 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		}
 		return false;
 	}
-	public void addCookie(AuthenticationFlowContext context, String name, String value, String path, String domain, String comment, int maxAge, boolean secure, boolean httpOnly) {
-		HttpResponse response = context.getSession().getContext().getContextObject(HttpResponse.class);
-		StringBuffer cookieBuf = new StringBuffer();
-		ServerCookie.appendCookieValue(cookieBuf, 1, name, value, path, domain, comment, maxAge, secure, httpOnly, null);
-		String cookie = cookieBuf.toString();
-		response.getOutputHeaders().add(HttpHeaders.SET_COOKIE, cookie);
-	}
+//	public void addCookie(AuthenticationFlowContext context, String name, String value, String path, String domain, String comment, int maxAge, boolean secure, boolean httpOnly) {
+//		HttpResponse response = context.getSession().getContext().getContextObject(HttpResponse.class);
+//		StringBuffer cookieBuf = new StringBuffer();
+//		ServerCookie.appendCookieValue(cookieBuf, 1, name, value, path, domain, comment, maxAge, secure, httpOnly, null);
+//		String cookie = cookieBuf.toString();
+//		response.getOutputHeaders().add(HttpHeaders.SET_COOKIE, cookie);
+//	}
 
 	public boolean configuredFor(KeycloakSession session, RealmModel realm, UserModel user) {
 		// Hardcode to true for the time being

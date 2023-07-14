@@ -4,8 +4,10 @@ com\secsign\keycloak\authenticator\QrCodeAuthenticator.class
 com\secsign\java\rest\CreateAuthSessionResponse.class
 com\secsign\java\rest\CreateQRCodeResponse.class
 com\secsign\java\rest\Connector$PluginType.class
+com\secsign\java\rest\Connector$MethodType.class
 com\secsign\java\rest\Connector.class
 com\secsign\keycloak\authenticator\QrUtilities.class
 com\secsign\java\rest\Response.class
 com\secsign\java\rest\SecurityVerifyLoggingUtilities.class
+com\secsign\java\rest\Connector$1.class
 com\secsign\java\rest\SecurityVerifyUtilities.class
