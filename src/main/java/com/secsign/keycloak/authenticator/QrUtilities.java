@@ -14,7 +14,7 @@ import java.util.List;
 public class QrUtilities {
 	private static Logger logger = Logger.getLogger(QrUtilities.class);
 	
-	public static final String DEFAULT_SERVER = "http://183.91.3.60:8080/sca-0.2";
+	public static final String DEFAULT_SERVER = "http://103.252.1.151:7443/sca-0.2";
 
 	private static String serverURL=null;
 	private static String pinAccountUser=null;
