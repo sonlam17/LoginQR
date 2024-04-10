@@ -159,7 +159,6 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 					qrResponse = Connector.
 							pollQrLoginStatus(context, qrLoginId);
 					if (qrResponse == null) {
-						System.out.println("1msmd");
 						break;
 					}
 					isAuth = checkStateQrCode(qrResponse);
@@ -175,11 +174,12 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 					context.setUser(user);
 					context.success();
 				} else {
+					System.out.println("error");
 					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 					Response challenge = context.form()
 							.setError("Username or Password not correct!")
 							.createForm("secsign-accesspass.ftl");
-					context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+					context.challenge(challenge);
 				}
 			}
 		}
@@ -187,12 +187,12 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
-				System.out.println("log 12345556");
+
 				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
-				Response challenge =  context.form()
+				Response challenge = context.form()
 						.setError("Username or Password not correct!")
 						.createForm("secsign-accesspass.ftl");
-				context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
+				context.resetFlow();
 			}
 			context.success();
 		}

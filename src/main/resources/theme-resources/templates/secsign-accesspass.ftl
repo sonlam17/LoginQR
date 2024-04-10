@@ -45,7 +45,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 										aria-controls="navs-pills-justified-home"
 										aria-selected="true"
 								>
-									<i class="tf-icons ti ti-home ti-xs me-1"></i> Password
+									<i class="tf-icons ti ti-home ti-xs me-1"></i> Mật khẩu
 								</button>
 							</li>
 							<li class="nav-item" id="qr-btn" onclick="qrClick()">
@@ -87,7 +87,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
                                 ${auth.selectedCredential}
                                 </#if>">
 												<div class="mb-3">
-												<label for="email" class="form-label">Email or Username</label>
+												<label for="email" class="form-label">Tên đăng nhập hoặc email</label>
                                                 <div>
                                                     <@inputPrimary.kw
                                                     autocomplete=realm.loginWithEmailAllowed?string("email", "username" )
@@ -102,7 +102,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
                                                 </div>
 												</div>
 												<div class="mb-3 form-password-toggle">
-												<label class="form-label" for="password">Password</label>                                                <div>
+												<label class="form-label" for="password">Mật khẩu</label>                                                <div>
                                                     <@inputPrimary.kw
                                                     invalid=["username", "password" ]
                                                     message=false
@@ -152,7 +152,7 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 							<div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
 								<script src="https://code.jquery.com/jquery-3.6.0.js"  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="  crossorigin="anonymous"></script>
 									<img style="margin: auto;" src="data:image/png;base64,${accessPassIconData}">
-									<p class="secUi-main__textsmall">Please use Scan Qr Code in your SCAMobile app</p>
+									<p class="secUi-main__textsmall">Hãy sử dụng tính năng quét Qr-code trong ứng dụng SCA</p>
 								</script>
 <#--									jQuery(document).ready(function ($) {-->
 
@@ -174,9 +174,9 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 				</div>
 			</div>
 			<p class="text-center">
-				<span>New on our platform?</span>
+				<span>Bạn chưa có tài khoản?</span>
 				<@linkPrimary.kw href=url.registrationUrl>
-					<span>Create an account</span>
+					<span>Đăng ký tài khoản mới</span>
 				</@linkPrimary.kw>
 			</p>
 		</div>
@@ -238,7 +238,6 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 		  }
 
 		</script>
-		//
 
     </#if>
     <head>

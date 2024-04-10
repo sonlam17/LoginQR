@@ -33,19 +33,19 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-core</artifactId>
-      <version>18.0.0</version>
+      <version>17.0.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-server-spi</artifactId>
-      <version>18.0.0</version>
+      <version>17.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-server-spi-private</artifactId>
-      <version>18.0.0</version>
+      <version>17.0.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -75,7 +75,7 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-services</artifactId>
-      <version>18.0.0</version>
+      <version>17.0.1</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -128,6 +128,7 @@
   <properties>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
+    <keycloak.version>17.0.1</keycloak.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
