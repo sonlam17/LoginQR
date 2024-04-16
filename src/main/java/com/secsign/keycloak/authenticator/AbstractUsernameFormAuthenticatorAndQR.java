@@ -28,6 +28,7 @@ import static org.keycloak.services.validation.Validation.FIELD_PASSWORD;
 import static org.keycloak.services.validation.Validation.FIELD_USERNAME;
 
 public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFormAuthenticator {
+
     private static final Logger logger = Logger.getLogger(AbstractUsernameFormAuthenticator.class);
 
     public static final String REGISTRATION_FORM_ACTION = "registration_form";
@@ -55,7 +56,11 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
                 form.setError(error);
             }
         }
-        return createLoginForm(form);
+        form.setAttribute("qrId", QrUtilities.getQrLoginId(context));
+        form.setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
+        Response challenge = form
+                .createForm("secsign-accesspass.ftl");
+        return challenge;
     }
 
     protected Response createLoginForm(LoginFormsProvider form) {
@@ -124,73 +129,14 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
 
 
     public boolean validateUserAndPassword(AuthenticationFlowContext context, MultivaluedMap<String, String> inputData)  {
+
+        System.out.println("validateUserAndPassword");
         UserModel user = getUser(context, inputData);
         boolean shouldClearUserFromCtxAfterBadPassword = !isUserAlreadySetBeforeUsernamePasswordAuth(context);
+        System.out.println(user);
         return user != null && validatePassword(context, user, inputData, shouldClearUserFromCtxAfterBadPassword) && validateUser(context, user, inputData);
     }
 
-    public boolean validateUser(AuthenticationFlowContext context, MultivaluedMap<String, String> inputData) {
-        UserModel user = getUser(context, inputData);
-        return user != null && validateUser(context, user, inputData);
-    }
-    private boolean validateUser(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
-        if (!enabledUser(context, user)) {
-            return false;
-        }
-        String rememberMe = inputData.getFirst("rememberMe");
-        boolean remember = rememberMe != null && rememberMe.equalsIgnoreCase("on");
-        if (remember) {
-            context.getAuthenticationSession().setAuthNote(Details.REMEMBER_ME, "true");
-            context.getEvent().detail(Details.REMEMBER_ME, "true");
-        } else {
-            context.getAuthenticationSession().removeAuthNote(Details.REMEMBER_ME);
-        }
-        context.setUser(user);
-        return true;
-    }
-    public boolean validatePassword(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData, boolean clearUser) {
-        String password = inputData.getFirst(CredentialRepresentation.PASSWORD);
-        if (password == null || password.isEmpty()) {
-            return badPasswordHandler(context, user, clearUser,true);
-        }
-
-        if (isDisabledByBruteForce(context, user)) return false;
-
-        if (password != null && !password.isEmpty() && context.getSession().userCredentialManager().isValid(context.getRealm(), user, UserCredentialModel.password(password))) {
-            return true;
-        } else {
-            return badPasswordHandler(context, user, clearUser,false);
-        }
-    }
-    private boolean badPasswordHandler(AuthenticationFlowContext context, UserModel user, boolean clearUser, boolean isEmptyPassword) {
-        context.getEvent().user(user);
-        context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
-
-        if (isUserAlreadySetBeforeUsernamePasswordAuth(context)) {
-            LoginFormsProvider form = context.form();
-            form.setAttribute(LoginFormsProvider.USERNAME_HIDDEN, true);
-            form.setAttribute(LoginFormsProvider.REGISTRATION_DISABLED, true);
-        }
-
-        Response challengeResponse = challenge(context, getDefaultChallengeMessage(context), FIELD_PASSWORD);
-        if(isEmptyPassword) {
-            context.forceChallenge(challengeResponse);
-        }else{
-            System.out.println("Username or Password not correct!");
-				context.form().setAttribute("qrId", QrUtilities.getQrLoginId(context));
-				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
-				Response challenge = context.form()
-						.setError("Username or Password not correct!")
-						.createForm("secsign-accesspass.ftl");
-				context.challenge(challenge);
-            context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challenge);
-        }
-
-        if (clearUser) {
-            context.clearUser();
-        }
-        return false;
-    }
     private UserModel getUser(AuthenticationFlowContext context, MultivaluedMap<String, String> inputData) {
         if (isUserAlreadySetBeforeUsernamePasswordAuth(context)) {
             // Get user from the authentication context in case he was already set before this authenticator
@@ -203,6 +149,7 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
             return getUserFromForm(context, inputData);
         }
     }
+
     private UserModel getUserFromForm(AuthenticationFlowContext context, MultivaluedMap<String, String> inputData) {
         String username = inputData.getFirst(AuthenticationManager.FORM_USERNAME);
         if (username == null) {
@@ -216,7 +163,7 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
         username = username.trim();
 
         context.getEvent().detail(Details.USERNAME, username);
-        context.getAuthenticationSession().setAuthNote(AbstractUsernameFormAuthenticatorAndQR.ATTEMPTED_USERNAME, username);
+        context.getAuthenticationSession().setAuthNote(AbstractUsernameFormAuthenticator.ATTEMPTED_USERNAME, username);
 
         UserModel user = null;
         try {
@@ -236,6 +183,62 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
         testInvalidUser(context, user);
         return user;
     }
+
+    private boolean validateUser(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData) {
+        if (!enabledUser(context, user)) {
+            return false;
+        }
+        String rememberMe = inputData.getFirst("rememberMe");
+        boolean remember = rememberMe != null && rememberMe.equalsIgnoreCase("on");
+        if (remember) {
+            context.getAuthenticationSession().setAuthNote(Details.REMEMBER_ME, "true");
+            context.getEvent().detail(Details.REMEMBER_ME, "true");
+        } else {
+            context.getAuthenticationSession().removeAuthNote(Details.REMEMBER_ME);
+        }
+        context.setUser(user);
+        return true;
+    }
+
+    public boolean validatePassword(AuthenticationFlowContext context, UserModel user, MultivaluedMap<String, String> inputData, boolean clearUser) {
+        System.out.println("validatePassword");
+        String password = inputData.getFirst(CredentialRepresentation.PASSWORD);
+        if (password == null || password.isEmpty()) {
+            return badPasswordHandler(context, user, clearUser,true);
+        }
+
+        if (isDisabledByBruteForce(context, user)) return false;
+
+        if (password != null && !password.isEmpty() && context.getSession().userCredentialManager().isValid(context.getRealm(), user, UserCredentialModel.password(password))) {
+            return true;
+        } else {
+            return badPasswordHandler(context, user, clearUser,false);
+        }
+    }
+
+    // Set up AuthenticationFlowContext error.
+    private boolean badPasswordHandler(AuthenticationFlowContext context, UserModel user, boolean clearUser,boolean isEmptyPassword) {
+        context.getEvent().user(user);
+        context.getEvent().error(Errors.INVALID_USER_CREDENTIALS);
+        System.out.println("badPasswordHandler");
+        if (isUserAlreadySetBeforeUsernamePasswordAuth(context)) {
+            LoginFormsProvider form = context.form();
+            form.setAttribute(LoginFormsProvider.USERNAME_HIDDEN, true);
+            form.setAttribute(LoginFormsProvider.REGISTRATION_DISABLED, true);
+        }
+
+        Response challengeResponse = challenge(context, getDefaultChallengeMessage(context), FIELD_PASSWORD);
+        if(isEmptyPassword) {
+            context.forceChallenge(challengeResponse);
+        }else{
+            context.failureChallenge(AuthenticationFlowError.INVALID_CREDENTIALS, challengeResponse);
+        }
+        if (clearUser) {
+            context.clearUser();
+        }
+        return false;
+    }
+
     protected boolean isDisabledByBruteForce(AuthenticationFlowContext context, UserModel user) {
         String bruteForceError = getDisabledByBruteForceEventError(context.getProtector(), context.getSession(), context.getRealm(), user);
         if (bruteForceError != null) {
@@ -247,6 +250,7 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
         }
         return false;
     }
+
     protected String getDefaultChallengeMessage(AuthenticationFlowContext context) {
         if (isUserAlreadySetBeforeUsernamePasswordAuth(context)) {
             return Messages.INVALID_PASSWORD;
@@ -259,5 +263,4 @@ public abstract class AbstractUsernameFormAuthenticatorAndQR extends AbstractFor
         String userSet = context.getAuthenticationSession().getAuthNote(USER_SET_BEFORE_USERNAME_PASSWORD_AUTH);
         return Boolean.parseBoolean(userSet);
     }
-
 }
