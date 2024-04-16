@@ -10,4 +10,5 @@ com\secsign\keycloak\authenticator\QrUtilities.class
 com\secsign\java\rest\Response.class
 com\secsign\java\rest\SecurityVerifyLoggingUtilities.class
 com\secsign\java\rest\Connector$1.class
+com\secsign\keycloak\authenticator\AbstractUsernameFormAuthenticatorAndQR.class
 com\secsign\java\rest\SecurityVerifyUtilities.class

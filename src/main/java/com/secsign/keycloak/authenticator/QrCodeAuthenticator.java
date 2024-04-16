@@ -17,39 +17,29 @@
 
 package com.secsign.keycloak.authenticator;
 
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import com.secsign.java.rest.*;
+import com.secsign.java.rest.Connector;
+import com.secsign.java.rest.CreateAuthSessionResponse;
+import com.secsign.java.rest.QrLoginResponse;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
-import org.jboss.resteasy.spi.HttpResponse;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.authentication.authenticators.browser.UsernamePasswordForm;
-import org.keycloak.common.util.ServerCookie;
-import org.keycloak.credential.CredentialProvider;
-import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.forms.login.LoginFormsProvider;
-import org.keycloak.models.*;
-
-import org.keycloak.models.utils.FormMessage;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.models.UserModel;
 import org.keycloak.protocol.oidc.OIDCLoginProtocol;
 import org.keycloak.services.managers.AuthenticationManager;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:bill@burkecentral.com">Bill Burke</a>
  * @version $Revision: 1 $
  */
-public class QrCodeAuthenticator extends UsernamePasswordForm implements Authenticator {
+public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR implements Authenticator {
 
 	private static final Logger logger = Logger.getLogger(QrCodeAuthenticator.class);
     
@@ -142,12 +132,13 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 		// Poll for the QR login
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
+		String qrLoginId = QrUtilities.getQrLoginId(context);
 		UserModel user = null;
 		if(username==null)
 		{
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"));
 			if ("checkAuth".equals(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))) {
-				String qrLoginId = QrUtilities.getQrLoginId(context);
+
 				QrLoginResponse qrResponse = null;
 				Boolean isAuth = checkStateQrCode(Connector.pollQrLoginStatus(context, qrLoginId));
 				while (!isAuth) {
@@ -175,6 +166,7 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 					context.success();
 				} else {
 					System.out.println("error");
+					context.form().setAttribute("qrId", qrLoginId);
 					context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
 					Response challenge = context.form()
 							.setError("Username or Password not correct!")
@@ -187,16 +179,24 @@ public class QrCodeAuthenticator extends UsernamePasswordForm implements Authent
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
-
-				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
-				Response challenge = context.form()
-						.setError("Username or Password not correct!")
-						.createForm("secsign-accesspass.ftl");
-				context.resetFlow();
+//				System.out.println("Username or Password not correct!");
+//				context.form().setAttribute("qrId", qrLoginId);
+//				context.form().setAttribute("accessPassIconData", QrUtilities.getQrLoginImage(context));
+//				Response challenge = context.form()
+//						.setError("Username or Password not correct!")
+//						.createForm("secsign-accesspass.ftl");
+//				context.challenge(challenge);
+				return;
 			}
 			context.success();
 		}
     }
+	protected boolean validateForm(AuthenticationFlowContext context, MultivaluedMap<String, String> formData) {
+		return validateUserAndPassword(context, formData);
+	}
+
+
+
     /**
      * needs to give true, as we want to authenticate the user by the auth process and not by provided data
      */

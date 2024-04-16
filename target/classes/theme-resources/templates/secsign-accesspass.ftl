@@ -238,7 +238,6 @@ displayMessage=!messagesPerField.existsError("username", "password" )
 		  }
 
 		</script>
-		//
 
     </#if>
     <head>

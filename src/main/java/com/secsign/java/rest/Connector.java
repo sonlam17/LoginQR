@@ -135,9 +135,9 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
             String endpointUrl = "/qrcode/deleteQr?qrId=" + qrLoginId;
             System.out.println("endpointUrl is " + endpointUrl);
             Response response = getResponse(endpointUrl, MethodType.DELETE);
-            System.out.println(response);
-            JSONObject rootObject = new JSONObject(response.getContent());
-            System.out.println(rootObject);
+            System.out.println(response.getContent());
+//            JSONObject rootObject = new JSONObject(response.getContent());
+//            System.out.println(rootObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
