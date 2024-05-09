@@ -1,14 +1,1 @@
-com\secsign\java\rest\QrLoginResponse.class
-com\secsign\keycloak\authenticator\QrCodeAuthenticatorFactory.class
-com\secsign\keycloak\authenticator\QrCodeAuthenticator.class
-com\secsign\java\rest\CreateAuthSessionResponse.class
-com\secsign\java\rest\CreateQRCodeResponse.class
-com\secsign\java\rest\Connector$PluginType.class
-com\secsign\java\rest\Connector$MethodType.class
-com\secsign\java\rest\Connector.class
-com\secsign\keycloak\authenticator\QrUtilities.class
-com\secsign\java\rest\Response.class
-com\secsign\java\rest\SecurityVerifyLoggingUtilities.class
-com\secsign\java\rest\Connector$1.class
-com\secsign\keycloak\authenticator\AbstractUsernameFormAuthenticatorAndQR.class
-com\secsign\java\rest\SecurityVerifyUtilities.class
+META-INF\services\org.keycloak.services.resource.RealmResourceProviderFactory

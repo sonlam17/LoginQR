@@ -81,7 +81,6 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 	        //no existing auth session, so start one
 	        Connector connector= new Connector(QrUtilities.DEFAULT_SERVER);
 	        try {
-
 	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
 	        	if(result.getFrozen())
 	        	{
