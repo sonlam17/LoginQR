@@ -20,6 +20,7 @@ package com.secsign.keycloak.authenticator;
 import com.secsign.rest.Connector;
 import com.secsign.rest.CreateAuthSessionResponse;
 import com.secsign.rest.QrLoginResponse;
+import com.secsign.service.QrService;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -40,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * @version $Revision: 1 $
  */
 public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR implements Authenticator {
-
+	private KeycloakSession session;
 	private static final Logger logger = Logger.getLogger(QrCodeAuthenticator.class);
     
     /**
@@ -79,7 +80,7 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 			}
 		}
 	        //no existing auth session, so start one
-	        Connector connector= new Connector(QrUtilities.DEFAULT_SERVER);
+	        Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
 	        try {
 	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
 	        	if(result.getFrozen())

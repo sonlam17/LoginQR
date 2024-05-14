@@ -38,7 +38,7 @@ public class QrResourceProvider implements RealmResourceProvider {
   @NoCache
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createCompany(QrRepresentation rep) {
-    session.getProvider(QrService.class).createQr(rep.getContent());
+    session.getProvider(QrService.class).createQr(rep);
     return Response.created(session.getContext().getUri().getAbsolutePathBuilder().path(rep.getId()).build()).build();
   }
 }

@@ -3,6 +3,7 @@ package com.secsign.service.impl;
 import com.secsign.model.QRAdapter;
 import com.secsign.model.jpa.entity.QrEntity;
 import com.secsign.model.QrModel;
+import com.secsign.representation.QrRepresentation;
 import com.secsign.service.QrService;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -21,12 +22,12 @@ public class JpaQrService implements QrService {
     }
 
     @Override
-    public QrModel createQr(String name) {
+    public QrModel createQr(QrRepresentation qrRepresentation) {
         QrEntity e = new QrEntity();
         e.setId(KeycloakModelUtils.generateId());
         e.setRealmId(realm.getId());
-        e.setContent(name);
-        e.setState(name);
+        e.setContent(qrRepresentation.getContent());
+        e.setState(qrRepresentation.getState());
 
         em.persist(e);
         em.flush();

@@ -5,6 +5,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import com.secsign.keycloak.authenticator.QrUtilities;
+import com.secsign.model.QrModel;
+import com.secsign.representation.QrRepresentation;
+import com.secsign.service.QrService;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -25,6 +28,7 @@ import org.keycloak.models.UserModel;
 
 
 public class Connector {
+    private final QrService qrService;
     private static Logger logger = Logger.getLogger(QrUtilities.class);
 
     /**
@@ -67,8 +71,9 @@ public class Connector {
     /**
      * public constructor with PinAccount
      */
-    public Connector(String serverURL)
+    public Connector(QrService qrService, String serverURL)
     {
+        this.qrService = qrService;
         this.serverUrl=serverURL;
     }
 
@@ -218,25 +223,18 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
      * @throws Exception thrown if a error occurred
      */
     public CreateAuthSessionResponse getAuthSession(AuthenticationFlowContext context) throws Exception {
-
-        String endpointUrl = "/qrcode/getQrCode";
-        System.out.println("endpointUrl is "+endpointUrl);
-        Response response = getResponse(endpointUrl, MethodType.GET);
-
-        if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            try {
-                System.out.println("--------------------");
-                System.out.println(response.getContent());
-                return CreateAuthSessionResponse.fromJson(response.getContent(),context);
-            } catch (JSONException e) {
-                System.out.println(e.getMessage());
-                throw new Exception("JSONException: " + e.getMessage());
-            }
-        } else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_CONFLICT) {
-            return CreateAuthSessionResponse.FROZEN;
+        QrRepresentation qrRepresentation = new QrRepresentation();
+        qrRepresentation.setContent("123");
+        qrRepresentation.setState("123");
+        QrModel response = qrService.createQr(qrRepresentation);
+        try {
+            System.out.println("--------------------");
+            System.out.println(response.getContent());
+            return CreateAuthSessionResponse.fromJson(response.getContent(),context);
+        } catch (JSONException e) {
+            System.out.println(e.getMessage());
+            throw new Exception("JSONException: " + e.getMessage());
         }
-
-        throw getExceptionForStatusCode(response.getStatusLine().getStatusCode());
     }
 
 
