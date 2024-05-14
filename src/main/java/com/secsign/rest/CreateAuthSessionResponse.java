@@ -1,4 +1,4 @@
-package com.secsign.java.rest;
+package com.secsign.rest;
 
 import org.json.JSONException;
 import org.json.JSONObject;

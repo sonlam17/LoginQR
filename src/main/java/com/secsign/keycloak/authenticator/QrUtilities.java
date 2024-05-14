@@ -1,14 +1,11 @@
 package com.secsign.keycloak.authenticator;
 
-import com.secsign.java.rest.SecurityVerifyLoggingUtilities;
+import com.secsign.rest.SecurityVerifyLoggingUtilities;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.models.UserModel;
 
 
-import java.io.IOException;
-
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class QrUtilities {

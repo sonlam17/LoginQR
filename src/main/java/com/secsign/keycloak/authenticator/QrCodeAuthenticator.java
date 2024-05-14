@@ -17,9 +17,9 @@
 
 package com.secsign.keycloak.authenticator;
 
-import com.secsign.java.rest.Connector;
-import com.secsign.java.rest.CreateAuthSessionResponse;
-import com.secsign.java.rest.QrLoginResponse;
+import com.secsign.rest.Connector;
+import com.secsign.rest.CreateAuthSessionResponse;
+import com.secsign.rest.QrLoginResponse;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 import org.keycloak.authentication.AuthenticationFlowContext;

@@ -1,4 +1,4 @@
-package com.secsign.java.rest;
+package com.secsign.rest;
 
 public class QrLoginResponse {
 

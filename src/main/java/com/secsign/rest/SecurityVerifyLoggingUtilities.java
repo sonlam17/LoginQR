@@ -11,7 +11,7 @@
     limitations under the License.
 */
 
-package com.secsign.java.rest;
+package com.secsign.rest;
 
 import org.jboss.logging.Logger;
 
