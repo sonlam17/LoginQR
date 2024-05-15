@@ -13,7 +13,6 @@ com\secsign\service\QrSpi.class
 com\secsign\model\jpa\entity\QrJpaEntityProviderFactory.class
 com\secsign\model\QrModel$QrRemovedEvent.class
 com\secsign\representation\QrRepresentation.class
-com\secsign\rest\resource\QrRestResource.class
 com\secsign\service\impl\JpaQrServiceProviderFactory.class
 com\secsign\keycloak\authenticator\AbstractUsernameFormAuthenticatorAndQR.class
 com\secsign\rest\resource\QrResourceProvider.class
@@ -21,6 +20,7 @@ com\secsign\rest\Connector.class
 com\secsign\rest\SecurityVerifyUtilities.class
 com\secsign\rest\Connector$PluginType.class
 com\secsign\model\QrModel$QrCreationEvent.class
+com\secsign\util\QRCodeGenerator.class
 com\secsign\model\QrModel$QrEvent.class
 com\secsign\rest\Connector$MethodType.class
 com\secsign\rest\CreateAuthSessionResponse.class
@@ -31,4 +31,3 @@ com\secsign\service\impl\JpaQrService$1.class
 com\secsign\service\QrServiceProviderFactory.class
 com\secsign\keycloak\authenticator\QrUtilities.class
 com\secsign\service\QrService.class
-com\secsign\rest\resource\QrResource.class

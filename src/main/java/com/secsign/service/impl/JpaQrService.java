@@ -24,9 +24,10 @@ public class JpaQrService implements QrService {
     @Override
     public QrModel createQr(QrRepresentation qrRepresentation) {
         QrEntity e = new QrEntity();
-        e.setId(KeycloakModelUtils.generateId());
+        String id = KeycloakModelUtils.generateId();
+        e.setId(id);
         e.setRealmId(realm.getId());
-        e.setContent(qrRepresentation.getContent());
+        e.setContent(qrRepresentation.getContent()+"/realms/"+realm.getId()+"/qr"+ "/setState?id="+ id);
         e.setState(qrRepresentation.getState());
 
         em.persist(e);

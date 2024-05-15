@@ -37,5 +37,5 @@ public class QrEntity {
     protected String content;
 
     @Column(name = "STATE", nullable = false)
-    protected String state;
+    protected Boolean state;
 }

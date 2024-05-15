@@ -2,12 +2,14 @@ package com.secsign.rest;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Base64;
 import java.util.List;
 
 import com.secsign.keycloak.authenticator.QrUtilities;
 import com.secsign.model.QrModel;
 import com.secsign.representation.QrRepresentation;
 import com.secsign.service.QrService;
+import com.secsign.util.QRCodeGenerator;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -224,13 +226,15 @@ public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext contex
      */
     public CreateAuthSessionResponse getAuthSession(AuthenticationFlowContext context) throws Exception {
         QrRepresentation qrRepresentation = new QrRepresentation();
-        qrRepresentation.setContent("123");
-        qrRepresentation.setState("123");
-        QrModel response = qrService.createQr(qrRepresentation);
+        qrRepresentation.setContent(serverUrl);
+        qrRepresentation.setState(false);
+        QrModel qrModel = qrService.createQr(qrRepresentation);
+        byte[] image = QRCodeGenerator.getQRCodeImage(qrRepresentation.getContent(), 300, 300);
+        String qrcodeContent = Base64.getEncoder().encodeToString(image);
         try {
             System.out.println("--------------------");
-            System.out.println(response.getContent());
-            return CreateAuthSessionResponse.fromJson(response.getContent(),context);
+            System.out.println(qrModel.getContent());
+            return CreateAuthSessionResponse.fromJson(qrModel.getId(), qrcodeContent, context);
         } catch (JSONException e) {
             System.out.println(e.getMessage());
             throw new Exception("JSONException: " + e.getMessage());

@@ -39,12 +39,12 @@ public class QRAdapter implements QrModel, JpaModel<QrEntity> {
     }
 
     @Override
-    public String getState() {
+    public Boolean getState() {
         return qr.getState();
     }
 
     @Override
-    public void setState(String state) {
+    public void setState(Boolean state) {
         qr.setState(state);
     }
 

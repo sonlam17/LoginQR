@@ -36,7 +36,6 @@ import java.util.List;
 public class QrCodeAuthenticatorFactory implements AuthenticatorFactory, ConfigurableAuthenticatorFactory {
 
     public static final String PROVIDER_ID = "Login with QrCode";
-    private static final QrCodeAuthenticator SINGLETON = new QrCodeAuthenticator();
 
     @Override
     public String getId() {
@@ -45,7 +44,7 @@ public class QrCodeAuthenticatorFactory implements AuthenticatorFactory, Configu
 
     @Override
     public Authenticator create(KeycloakSession session) {
-        return SINGLETON;
+        return new QrCodeAuthenticator(session);
     }
 
     private static AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {

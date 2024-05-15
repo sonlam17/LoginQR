@@ -43,7 +43,10 @@ import java.util.concurrent.TimeUnit;
 public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR implements Authenticator {
 	private KeycloakSession session;
 	private static final Logger logger = Logger.getLogger(QrCodeAuthenticator.class);
-    
+	public QrCodeAuthenticator(KeycloakSession session) {
+		this.session = session;
+	}
+
     /**
      * called when the auth process is started
      * check for cookie, session or start secsign auth
@@ -80,7 +83,7 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 			}
 		}
 	        //no existing auth session, so start one
-	        Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
+		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
 	        try {
 	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
 	        	if(result.getFrozen())

@@ -11,9 +11,9 @@ public interface QrModel {
 
     void setContent(String url);
 
-    String getState();
+    Boolean getState();
 
-    void setState(String url);
+    void setState(Boolean state);
 
     void removeQr();
     interface QrEvent extends ProviderEvent {

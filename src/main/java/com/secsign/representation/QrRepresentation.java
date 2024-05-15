@@ -9,7 +9,7 @@ public class QrRepresentation {
 
   private @Valid String id = null;
   private @Valid String content = null;
-  private @Valid String state = null;
+  private @Valid Boolean state = null;
   private @Valid String realm = null;
   public QrRepresentation id(String id) {
     this.id = id;
@@ -39,17 +39,17 @@ public class QrRepresentation {
     this.content = content;
   }
 
-  public QrRepresentation state(String state) {
+  public QrRepresentation state(Boolean state) {
     this.state = state;
     return this;
   }
 
   @JsonProperty("state")
-  public String getState() {
+  public Boolean getState() {
     return state;
   }
 
-  public void setState(String state) {
+  public void setState(Boolean state) {
     this.state = state;
   }
 

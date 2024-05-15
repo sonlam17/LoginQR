@@ -13,7 +13,7 @@ public class CreateAuthSessionResponse {
     /**
      * Response when the ID is frozen.
      */
-    public static final CreateAuthSessionResponse FROZEN = new CreateAuthSessionResponse( null, null, null, true);
+    public static final CreateAuthSessionResponse FROZEN = new CreateAuthSessionResponse( null, null, true);
 
 
 
@@ -26,7 +26,6 @@ public class CreateAuthSessionResponse {
     /**
      * The SecSign ID.
      */
-    private final String secSignId;
 
     /**
      * The state of the ID. If the ID is frozen, no auth session can be created.
@@ -40,18 +39,10 @@ public class CreateAuthSessionResponse {
      * @throws JSONException thrown when a JSON error occurred
      * @throws Exception thrown when a JSON key was not found
      */
-    public static CreateAuthSessionResponse fromJson(String json, AuthenticationFlowContext context ) throws JSONException, Exception {
-        JSONObject rootObject = new JSONObject(json);
-
-
-        JSONObject data = rootObject.optJSONObject("data", null);
-        String authSessionIconData = data.optString("qrContent", null);
-        String qrId = data.optString("qrId", null);
-        String secSignId = rootObject.optString("message", null);
-
+    public static CreateAuthSessionResponse fromJson(String qrId, String authSessionIconData, AuthenticationFlowContext context) throws JSONException, Exception {
         context.getAuthenticationSession().setUserSessionNote("qr.login.id", qrId);
         context.getAuthenticationSession().setUserSessionNote("qr.login.image", authSessionIconData);
-        return new CreateAuthSessionResponse( authSessionIconData, qrId, secSignId, false);
+        return new CreateAuthSessionResponse( authSessionIconData, qrId, false);
     }
 
     /**
@@ -59,13 +50,11 @@ public class CreateAuthSessionResponse {
      *
      * @param authSessionIconData the auth session icon data (Base64 encoded image)
      * @param qrId
-     * @param secSignId           the SecSign ID
      * @param frozen              the frozen state of the SecSign ID
      */
-    private CreateAuthSessionResponse( String authSessionIconData, String qrId, String secSignId, boolean frozen) {
+    private CreateAuthSessionResponse( String authSessionIconData, String qrId, boolean frozen) {
         this.authSessionIconData = authSessionIconData;
         this.qrId = qrId;
-        this.secSignId = secSignId;
         this.frozen = frozen;
     }
 
