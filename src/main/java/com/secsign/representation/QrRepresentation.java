@@ -11,6 +11,7 @@ public class QrRepresentation {
   private @Valid String content = null;
   private @Valid Boolean state = null;
   private @Valid String realm = null;
+  private @Valid String userId = null;
   public QrRepresentation id(String id) {
     this.id = id;
     return this;
@@ -69,7 +70,14 @@ public class QrRepresentation {
     this.realm = realm;
   }
 
+  @JsonProperty("userId")
+  public String getUserId() {
+    return userId;
+  }
 
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -82,12 +90,13 @@ public class QrRepresentation {
     return Objects.equals(id, qr.id)
         && Objects.equals(content, qr.content)
         && Objects.equals(state, qr.state)
-        && Objects.equals(realm, qr.realm);
+        && Objects.equals(realm, qr.realm)
+        && Objects.equals(userId, qr.userId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, content, state, realm);
+    return Objects.hash(id, content, state, realm, userId);
   }
 
   @Override
@@ -95,9 +104,10 @@ public class QrRepresentation {
     StringBuilder sb = new StringBuilder();
     sb.append("class Organization {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
-    sb.append("    name: ").append(toIndentedString(content)).append("\n");
-    sb.append("    displayName: ").append(toIndentedString(state)).append("\n");
+    sb.append("    content: ").append(toIndentedString(content)).append("\n");
+    sb.append("    state: ").append(toIndentedString(state)).append("\n");
     sb.append("    realm: ").append(toIndentedString(realm)).append("\n");
+    sb.append("    userId: ").append(toIndentedString(userId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

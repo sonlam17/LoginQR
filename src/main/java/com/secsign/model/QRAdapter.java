@@ -39,6 +39,16 @@ public class QRAdapter implements QrModel, JpaModel<QrEntity> {
     }
 
     @Override
+    public String getUserId() {
+        return qr.getUserId();
+    }
+
+    @Override
+    public void setUserId(String url) {
+        qr.setUserId(url);
+    }
+
+    @Override
     public Boolean getState() {
         return qr.getState();
     }

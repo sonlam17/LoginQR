@@ -83,8 +83,9 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 			}
 		}
 	        //no existing auth session, so start one
-		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
+//		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
 	        try {
+				Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
 	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
 	        	if(result.getFrozen())
 	        	{
@@ -135,33 +136,34 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 		// Poll for the QR login
 		MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
 		String username = formData.getFirst("username");
+		System.out.println(username);
 		String qrLoginId = QrUtilities.getQrLoginId(context);
 		UserModel user = null;
+		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
+
 		if(username==null)
 		{
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"));
 			if ("checkAuth".equals(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))) {
-
-				QrLoginResponse qrResponse = null;
-				Boolean isAuth = checkStateQrCode(Connector.pollQrLoginStatus(context, qrLoginId));
-				while (!isAuth) {
+				QrLoginResponse qrResponse = connector.pollQrLoginStatus(context, qrLoginId);
+				while (!qrResponse.getState()) {
 					try {
 						TimeUnit.SECONDS.sleep(2);
 					} catch (InterruptedException ie) {
 						Thread.currentThread().interrupt();
 					}
-					qrResponse = Connector.
+					qrResponse = connector.
 							pollQrLoginStatus(context, qrLoginId);
 					if (qrResponse == null) {
 						break;
 					}
-					isAuth = checkStateQrCode(qrResponse);
 				}
 				if (qrResponse == null) {
 					throw new RuntimeException("a");
 				}
-				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userName);
-				System.out.println(qrResponse.userName);
+				System.out.println(qrResponse);
+				user = QrUtilities.matchCIUserNameToUserModel(context, qrResponse.userId);
+				System.out.println(qrResponse.userId);
 				System.out.println(user);
 				if (user != null) {
 					System.out.println("success");
@@ -180,7 +182,7 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 		}
 		else {
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
-			Connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
+			connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
 //				System.out.println("Username or Password not correct!");
 //				context.form().setAttribute("qrId", qrLoginId);
@@ -206,16 +208,6 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 	@Override
 	public void close() {
 
-	}
-	public Boolean checkStateQrCode(QrLoginResponse qrResponse){
-
-		System.out.println(qrResponse.state);
-		System.out.println(qrResponse.userName);
-		System.out.println(qrResponse.userName != null);
-		if ("SUCCESS".equals(qrResponse.state) && qrResponse.userName != null){
-			return true;
-		}
-		return false;
 	}
 //	public void addCookie(AuthenticationFlowContext context, String name, String value, String path, String domain, String comment, int maxAge, boolean secure, boolean httpOnly) {
 //		HttpResponse response = context.getSession().getContext().getContextObject(HttpResponse.class);

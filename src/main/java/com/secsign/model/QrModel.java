@@ -9,8 +9,10 @@ public interface QrModel {
 
     String getContent();
 
-    void setContent(String url);
+    void setContent(String content);
+    String getUserId();
 
+    void setUserId(String url);
     Boolean getState();
 
     void setState(Boolean state);

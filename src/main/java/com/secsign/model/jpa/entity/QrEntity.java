@@ -38,4 +38,7 @@ public class QrEntity {
 
     @Column(name = "STATE", nullable = false)
     protected Boolean state;
+
+    @Column(name = "USER_ID")
+    protected String userId;
 }

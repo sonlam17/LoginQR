@@ -86,45 +86,21 @@ public class Connector {
 //     * @return true if successful, otherwise false
 //     * @throws SecSignIDRESTException thrown if a error occurred
 //     */
-public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext context, String qrLoginId) {
-    final String methodName = "pollQrLoginStatus";
-    SecurityVerifyLoggingUtilities.entry(logger, methodName, context, qrLoginId);
+    public QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext context, String qrLoginId) {
 
-    String userName=null;
-    QrLoginResponse qrResponse = null;
-    try {
-        String endpointUrl = "/qrcode/getStateAuthenticate?qrId=" + qrLoginId;
-        System.out.println("endpointUrl is " + endpointUrl);
-        Response response = getResponse(endpointUrl, MethodType.GET);
-        JSONObject rootObject = new JSONObject(response.getContent());
-        JSONObject data = rootObject.optJSONObject("data", null);
+        QrLoginResponse qrResponse = null;
+        try {
+            final String methodName = "pollQrLoginStatus";
+            QrModel qrModel = qrService.getQrById(qrLoginId);
+            SecurityVerifyLoggingUtilities.entry(logger, methodName, context, qrLoginId);
 
-        if (data==null){
-            System.out.println(data);
-            throw new Exception();
-                    }
-        String state = data.optString("state", null);
-        String accessToken = data.optString("accessToken", null);
-        JSONObject user = data.optJSONObject("userParticipant", null);
-        if(user!=null)
-        {
-            userName = user.optString("username", null);
-
+            qrResponse = new QrLoginResponse(qrModel.getState(),qrModel.getUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        qrResponse = new QrLoginResponse(state,userName, accessToken);
-    } catch (URISyntaxException e) {
-        e.printStackTrace();
-    } catch (ClientProtocolException e) {
-        e.printStackTrace();
-    } catch (Exception e) {
-        e.printStackTrace();
+        return qrResponse;
     }
-
-//		IBMSecurityVerifyLoggingUtilities.exit(logger, methodName, qrResponse);
-    return qrResponse;
-}
-    public static void deleteQr(AuthenticationFlowContext context, String qrLoginId) {
+    public void deleteQr(AuthenticationFlowContext context, String qrLoginId) {
         final String methodName = "deleteQr";
         SecurityVerifyLoggingUtilities.entry(logger, methodName, null, qrLoginId);
         try {

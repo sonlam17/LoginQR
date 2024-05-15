@@ -47,16 +47,16 @@ public class QrUtilities {
 		SecurityVerifyLoggingUtilities.exit(logger, methodName, result);
 		return result;
 	}
-	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userName) {
+	public static UserModel matchCIUserNameToUserModel(AuthenticationFlowContext context, String userId) {
 		UserModel matchingUser = null;
-		if (userName != null) {
+		if (userId != null) {
 			List<UserModel> users = context.getSession().users().getUsers(context.getRealm());
 			UserModel iterUser;
-			String userNameKeycloak;
+			String userIdKeycloak;
 			for (int i = 0; i < users.size(); i++) {
 				iterUser = users.get(i);
-				userNameKeycloak = iterUser.getUsername();
-				if (userName.equals(userNameKeycloak)) {
+				userIdKeycloak = iterUser.getId();
+				if (userId.equals(userIdKeycloak)) {
 					matchingUser = iterUser;
 					i = users.size();
 				}

@@ -2,13 +2,20 @@ package com.secsign.rest;
 
 public class QrLoginResponse {
 
-    public String state;
-    public String userName;
-    public String accessToken;
+    public Boolean state;
+    public String userId;
 
-    public QrLoginResponse(String state, String userName, String accessToken) {
+    public QrLoginResponse(Boolean state, String userId) {
         this.state = state;
-        this.userName = userName;
-        this.accessToken = accessToken;
+        this.userId = userId;
+    }
+
+    public Boolean getState() {
+        return state;
+    }
+
+
+    public String getUserId() {
+        return userId;
     }
 }

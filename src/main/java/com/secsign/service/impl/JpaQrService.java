@@ -27,8 +27,9 @@ public class JpaQrService implements QrService {
         String id = KeycloakModelUtils.generateId();
         e.setId(id);
         e.setRealmId(realm.getId());
-        e.setContent(qrRepresentation.getContent()+"/realms/"+realm.getId()+"/qr"+ "/setState?id="+ id);
+        e.setContent(qrRepresentation.getContent()+"realms/"+realm.getId()+"/qr"+ "/setState/."+ id);
         e.setState(qrRepresentation.getState());
+        e.setUserId(null);
 
         em.persist(e);
         em.flush();
@@ -40,7 +41,15 @@ public class JpaQrService implements QrService {
 
     @Override
     public QrModel getQrById( String id) {
-        return null;
+        return getById(id);
+    }
+
+    @Override
+    public QrModel updateQrById(QrRepresentation body, String id, String userId) {
+        QrModel qrModel = getQrById(id);
+        qrModel.setState(true);
+        qrModel.setUserId(userId);
+        return qrModel;
     }
 
     @Override
@@ -56,6 +65,14 @@ public class JpaQrService implements QrService {
     @Override
     public void close() {
 
+    }
+    private QrModel getById(String id){
+        QrEntity org = em.find(QrEntity.class, id);
+        if (org != null && org.getRealmId().equals(realm.getId())) {
+            return new QRAdapter(session, org, em, realm);
+        } else {
+            return null;
+        }
     }
     public QrModel.QrCreationEvent qrCreationEvent(
             RealmModel realm, QrModel qr) {
