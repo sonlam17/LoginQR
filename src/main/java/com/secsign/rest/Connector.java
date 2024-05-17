@@ -86,18 +86,24 @@ public class Connector {
 //     * @return true if successful, otherwise false
 //     * @throws SecSignIDRESTException thrown if a error occurred
 //     */
-    public QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext context, String qrLoginId) {
+    public static QrLoginResponse pollQrLoginStatus(AuthenticationFlowContext context, String qrLoginId) {
+        final String methodName = "pollQrLoginStatus";
+        SecurityVerifyLoggingUtilities.entry(logger, methodName, context, qrLoginId);
 
+        String userId=null;
         QrLoginResponse qrResponse = null;
         try {
-            final String methodName = "pollQrLoginStatus";
-            QrModel qrModel = qrService.getQrById(qrLoginId);
-            SecurityVerifyLoggingUtilities.entry(logger, methodName, context, qrLoginId);
-
-            qrResponse = new QrLoginResponse(qrModel.getState(),qrModel.getUserId());
+            String endpointUrl = "realms/"+context.getRealm().getId()+"/qr/"+qrLoginId;
+            System.out.println("endpointUrl is " + endpointUrl);
+            Response response = getResponse(endpointUrl, MethodType.GET);
+            System.out.println("endpointUrl is " + response.getContent());
+            JSONObject data = new JSONObject(response.getContent());
+            Boolean state = Boolean.valueOf(data.optString("state", null));
+            userId = data.optString("userId", null);
+            qrResponse = new QrLoginResponse(state,userId);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }//		IBMSecurityVerifyLoggingUtilities.exit(logger, methodName, qrResponse);
         return qrResponse;
     }
     public void deleteQr(AuthenticationFlowContext context, String qrLoginId) {
@@ -205,11 +211,11 @@ public class Connector {
         qrRepresentation.setContent(serverUrl);
         qrRepresentation.setState(false);
         QrModel qrModel = qrService.createQr(qrRepresentation);
-        byte[] image = QRCodeGenerator.getQRCodeImage(qrRepresentation.getContent(), 300, 300);
+        System.out.println("--------------------");
+        System.out.println(qrModel.getContent());
+        byte[] image = QRCodeGenerator.getQRCodeImage(qrModel.getContent(), 300, 300);
         String qrcodeContent = Base64.getEncoder().encodeToString(image);
         try {
-            System.out.println("--------------------");
-            System.out.println(qrModel.getContent());
             return CreateAuthSessionResponse.fromJson(qrModel.getId(), qrcodeContent, context);
         } catch (JSONException e) {
             System.out.println(e.getMessage());

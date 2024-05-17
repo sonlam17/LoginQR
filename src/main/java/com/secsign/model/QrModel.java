@@ -16,6 +16,8 @@ public interface QrModel {
     Boolean getState();
 
     void setState(Boolean state);
+    String getRealm();
+    void setRealm(String realmId);
 
     void removeQr();
     interface QrEvent extends ProviderEvent {

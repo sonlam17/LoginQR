@@ -82,11 +82,8 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 				}
 			}
 		}
-	        //no existing auth session, so start one
-//		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
 	        try {
-				Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
-	        	CreateAuthSessionResponse result= connector.getAuthSession(context);
+	        	CreateAuthSessionResponse result=  new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER).getAuthSession(context);
 	        	if(result.getFrozen())
 	        	{
 	        		context.form().setAttribute("errorMsg", "This QrLogin is frozen due to concurrent login requests. The user needs to reactivate his account first. This can be done by tapping on the respective QrLogin in the QrLogin app.");
@@ -139,20 +136,21 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 		System.out.println(username);
 		String qrLoginId = QrUtilities.getQrLoginId(context);
 		UserModel user = null;
-		Connector connector= new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
-
 		if(username==null)
 		{
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"));
 			if ("checkAuth".equals(context.getHttpRequest().getFormParameters().getFirst("secsign_accessPassAction"))) {
-				QrLoginResponse qrResponse = connector.pollQrLoginStatus(context, qrLoginId);
+				new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER);
+				QrLoginResponse qrResponse = Connector.pollQrLoginStatus(context, qrLoginId);
+				System.out.println(qrResponse.getState());
 				while (!qrResponse.getState()) {
+					System.out.println(qrResponse.getState());
 					try {
 						TimeUnit.SECONDS.sleep(2);
 					} catch (InterruptedException ie) {
 						Thread.currentThread().interrupt();
 					}
-					qrResponse = connector.
+					qrResponse = Connector.
 							pollQrLoginStatus(context, qrLoginId);
 					if (qrResponse == null) {
 						break;
@@ -182,7 +180,8 @@ public class QrCodeAuthenticator extends AbstractUsernameFormAuthenticatorAndQR 
 		}
 		else {
 			System.out.println(context.getHttpRequest().getFormParameters().getFirst("qrId"));
-			connector.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
+			new Connector(session.getProvider(QrService.class), QrUtilities.DEFAULT_SERVER)
+					.deleteQr(context, context.getHttpRequest().getFormParameters().getFirst("qrId"));
 			if (!validateForm(context, formData)) {
 //				System.out.println("Username or Password not correct!");
 //				context.form().setAttribute("qrId", qrLoginId);

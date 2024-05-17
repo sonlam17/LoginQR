@@ -57,13 +57,16 @@ public class QrUtilities {
 				iterUser = users.get(i);
 				userIdKeycloak = iterUser.getId();
 				if (userId.equals(userIdKeycloak)) {
+					System.out.println(userIdKeycloak);
 					matchingUser = iterUser;
 					i = users.size();
 				}
 			}
 		} else {
-			// TODO: Error - mismatch / user does not exist
+			System.out.println("not found user");
 		}
+		assert matchingUser != null;
+		System.out.println("found user "+ matchingUser.getUsername());
 		return matchingUser;
 	}
 	public static void setQrLoginId(AuthenticationFlowContext context, String qrLoginId) {

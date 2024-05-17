@@ -69,7 +69,10 @@ public class QrRepresentation {
   public void setRealm(String realm) {
     this.realm = realm;
   }
-
+  public QrRepresentation userId(String userId) {
+    this.userId = userId;
+    return this;
+  }
   @JsonProperty("userId")
   public String getUserId() {
     return userId;

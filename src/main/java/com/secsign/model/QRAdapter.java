@@ -59,6 +59,16 @@ public class QRAdapter implements QrModel, JpaModel<QrEntity> {
     }
 
     @Override
+    public String getRealm() {
+        return qr.getRealmId();
+    }
+
+    @Override
+    public void setRealm(String realmId) {
+        qr.setRealmId(realmId);
+    }
+
+    @Override
     public void removeQr() {
 
     }

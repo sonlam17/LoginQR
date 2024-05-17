@@ -16,7 +16,11 @@ import javax.persistence.*;
                 query = "select count(o) from QrEntity o where o.realmId = :realmId"),
         @NamedQuery(
                 name = "removeAllQrEntity",
-                query = "delete from QrEntity o where o.realmId = :realmId")
+                query = "delete from QrEntity o where o.realmId = :realmId"),
+        @NamedQuery(
+                name = "findById",
+                query = "SELECT q FROM QrEntity q WHERE q.id = :id"
+        )
 })
 @Entity
 @Getter
