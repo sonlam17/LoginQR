@@ -3,17 +3,13 @@ package com.secsign.rest.resource;
 import com.secsign.model.QrModel;
 import com.secsign.representation.QrRepresentation;
 import com.secsign.service.QrService;
-import liquibase.hub.model.Organization;
 import lombok.extern.jbosslog.JBossLog;
-import org.jboss.resteasy.annotations.cache.NoCache;
-import org.keycloak.events.admin.OperationType;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.services.ForbiddenException;
 import org.keycloak.services.managers.AppAuthManager;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.resource.RealmResourceProvider;
 
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
