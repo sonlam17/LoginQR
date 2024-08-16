@@ -12,7 +12,7 @@ public class QrEntityProvider implements JpaEntityProvider{
 
     @Override
     public String getChangelogLocation() {
-        return "META-INF/qr-changelog.xml";
+        return "META-INF/qr-changelog-17082024.xml";
     }
 
     @Override
