@@ -11,7 +11,7 @@ import java.util.List;
 public class QrUtilities {
 	private static Logger logger = Logger.getLogger(QrUtilities.class);
 	
-	public static final String DEFAULT_SERVER = "https://sec.cmcati.vn/iam-test-idp/";
+	public static final String DEFAULT_SERVER = "https://iam.cmcati.vn/";
 
 	private static String serverURL=null;
 	private static String pinAccountUser=null;
